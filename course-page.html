@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course — Mani Industries</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.cp-wrap{max-width:1100px;margin:0 auto;padding:90px 2rem 60px}
+.cp-hero{display:grid;grid-template-columns:1fr 360px;gap:3rem;align-items:start;margin-bottom:3rem}
+.breadcrumb{font-size:.78rem;color:var(--text-dim);margin-bottom:1rem}
+.breadcrumb a{color:var(--accent);cursor:pointer}
+.cp-title{font-family:'Orbitron',monospace;font-size:clamp(1.5rem,3.5vw,2rem);font-weight:900;margin-bottom:.9rem;line-height:1.25}
+.cp-desc{color:var(--text-dim);font-size:.95rem;line-height:1.75;margin-bottom:1.5rem}
+.cp-meta-row{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem}
+.meta-pill{display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--text-dim);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:50px;padding:6px 14px}
+.cp-tags{display:flex;flex-wrap:wrap;gap:.5rem}
+.c-tag{font-size:.72rem;padding:4px 12px;background:rgba(0,200,255,.07);border:1px solid var(--border);border-radius:50px;color:var(--text-dim)}
+/* STICKY CARD */
+.cp-card{background:var(--bg3);border:1px solid var(--border);border-radius:18px;padding:1.8rem;position:sticky;top:88px}
+.card-banner{height:160px;background:linear-gradient(135deg,rgba(0,200,255,.1),rgba(0,200,255,.2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:5rem;margin-bottom:1.4rem;border:1px solid var(--border)}
+.card-price{font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:900;color:var(--accent);margin-bottom:.25rem}
+.card-price-sub{font-size:.72rem;color:var(--text-dim);margin-bottom:1.2rem}
+.prog-row{display:flex;justify-content:space-between;font-size:.78rem;color:var(--text-dim);margin-bottom:5px}
+.prog-bar{height:7px;background:rgba(255,255,255,.06);border-radius:50px;overflow:hidden;margin-bottom:1.2rem}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:50px;transition:width 1.2s ease}
+.enroll-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);font-family:'Orbitron',monospace;font-size:.78rem;font-weight:700;letter-spacing:1.5px;border-radius:10px;border:none;cursor:pointer;transition:all .3s;box-shadow:0 4px 20px var(--glow);margin-bottom:.65rem;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.enroll-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px var(--glow)}
+.back-btn{width:100%;padding:11px;background:transparent;color:var(--text-dim);font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;border:1px solid var(--border);border-radius:10px;transition:all .3s}
+.back-btn:hover{color:var(--text);border-color:var(--text)}
+.card-feats{margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--border)}
+.card-feat{display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:var(--text-dim);padding:.35rem 0}
+.card-feat::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0}
+/* MODULES */
+.section-title{font-family:'Orbitron',monospace;font-size:.95rem;font-weight:700;margin-bottom:1.25rem;padding-bottom:.65rem;border-bottom:1px solid var(--border)}
+.module-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;margin-bottom:.65rem;overflow:hidden}
+.module-header{display:flex;align-items:center;gap:.9rem;padding:1rem 1.2rem;cursor:pointer;transition:background .2s}
+.module-header:hover{background:rgba(0,200,255,.04)}
+.mod-num{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mod-title-text{font-weight:700;flex:1;font-size:.92rem}
+.mod-meta-right{font-size:.75rem;color:var(--text-dim)}
+.mod-chevron{color:var(--text-dim);transition:transform .3s}
+.module-card.open .mod-chevron{transform:rotate(180deg)}
+.lessons-list{border-top:1px solid var(--border)}
+.lesson-row{display:flex;align-items:center;gap:.65rem;padding:10px 1.25rem 10px 1.4rem;cursor:pointer;transition:background .2s;border-bottom:1px solid rgba(255,255,255,.04)}
+.lesson-row:last-child{border-bottom:none}
+.lesson-row:hover{background:rgba(0,200,255,.04)}
+.lesson-type{font-size:.9rem;flex-shrink:0}
+.lesson-name-text{flex:1;font-size:.86rem}
+.lesson-dur{font-size:.73rem;color:var(--text-dim)}
+.lesson-done-check{font-size:.75rem;color:#00ff88}
+/* WHAT YOU'LL LEARN */
+.features-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:2.5rem}
+.feat-item{display:flex;align-items:flex-start;gap:.65rem;font-size:.88rem;color:var(--text-dim);line-height:1.5}
+.feat-item::before{content:'✓';color:var(--accent);font-weight:700;margin-top:2px;flex-shrink:0}
+@media(max-width:900px){.cp-hero{grid-template-columns:1fr}.cp-card{position:relative;top:0}.features-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body data-theme="blue">
+<nav id="navbar">
+  <div class="nav-logo" onclick="window.location.href='index.html'" style="cursor:pointer">
+    <img src="logo.png" alt="M" onerror="this.style.display='none'">
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html" class="nav-link">Home</a></li>
+    <li><a href="courses.html" class="nav-link">Courses</a></li>
+    <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+  </ul>
+  <div class="nav-right">
+    <div id="profileNavWrap" style="position:relative">
+      <button class="icon-btn" id="profileBtn" onclick="window.location.href='index.html'"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+      <div class="user-nav-chip" id="userNavChip" style="display:none" onclick="window.location.href='dashboard.html'"><div class="user-nav-avatar" id="userNavAvatar">U</div><span class="user-nav-name" id="userNavName">User</span></div>
+    </div>
+  </div>
+</nav>
+
+<main class="cp-wrap"><div id="courseContent"><div style="text-align:center;padding:5rem;color:var(--text-dim);font-family:'Orbitron',monospace;font-size:.8rem">Loading course...</div></div></main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="payments.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const courseId = new URLSearchParams(window.location.search).get('id')||'python';
+let CU=null, isOwned=false, completedSet=new Set();
+
+auth.onAuthStateChanged(async user => {
+  CU = user;
+  if (user) {
+    isOwned = await hasCourse(user.uid, courseId);
+    const name = user.displayName||user.email.split('@')[0];
+    document.getElementById('userNavAvatar').innerHTML = user.photoURL?`<img src="${user.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:name[0].toUpperCase();
+    document.getElementById('userNavName').textContent = name;
+    document.getElementById('userNavChip').style.display='flex';
+    document.getElementById('profileBtn').style.display='none';
+    if (isOwned) {
+      const snap = await db.collection('progress').doc(user.uid).collection('courses').doc(courseId).collection('lessons').where('completed','==',true).get();
+      snap.forEach(d=>completedSet.add(d.id));
+    }
+  }
+  render();
+});
+
+function render() {
+  const c = COURSES[courseId];
+  if (!c) { document.getElementById('courseContent').innerHTML=`<div style="text-align:center;padding:5rem;color:var(--text-dim)">Course not found. <a href="courses.html" style="color:var(--accent)">Back to courses</a></div>`; return; }
+  const total = c.modules.reduce((a,m)=>a+m.lessons.length,0);
+  const pct   = total && isOwned ? Math.round((completedSet.size/total)*100) : 0;
+  document.title = c.title + ' — Mani Industries';
+
+  document.getElementById('courseContent').innerHTML = `
+    <div class="cp-hero">
+      <div>
+        <div class="breadcrumb"><a onclick="window.location.href='courses.html'">Courses</a> / ${c.title}</div>
+        <h1 class="cp-title">${c.icon} ${c.title}</h1>
+        <p class="cp-desc">${c.longDesc||c.desc}</p>
+        <div class="cp-meta-row">
+          <span class="meta-pill">📅 ${c.weeks} Weeks</span>
+          <span class="meta-pill">🎯 ${c.level}</span>
+          <span class="meta-pill">📖 ${total} Lessons</span>
+          <span class="meta-pill">📡 2 Live/Week</span>
+          ${isOwned?`<span class="meta-pill" style="color:#00ff88;border-color:rgba(0,255,136,.3)">✓ Owned</span>`:''}
+        </div>
+        <div class="cp-tags">${c.tags.map(t=>`<span class="c-tag">${t}</span>`).join('')}</div>
+
+        <div style="margin:2.5rem 0">
+          <div class="section-title">What You'll Learn</div>
+          <div class="features-grid">${c.features.map(f=>`<div class="feat-item">${f}</div>`).join('')}</div>
+        </div>
+
+        <div class="section-title">Course Curriculum</div>
+        <div id="modulesWrap">${renderModules(c, isOwned)}</div>
+      </div>
+      <div>
+        <div class="cp-card">
+          <div class="card-banner" style="background:linear-gradient(135deg,${c.color}15,${c.color}35)">${c.icon}</div>
+          ${isOwned && pct>0 ? `<div class="prog-row"><span>Your progress</span><span>${pct}%</span></div><div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>` : ''}
+          <div class="card-price">${isOwned ? '✓ Owned' : formatPrice(c.price)}</div>
+          <div class="card-price-sub">${isOwned ? '1-year access · Expires in 365 days' : 'One-time · 1-year full access'}</div>
+          ${isOwned
+            ? `<button class="enroll-btn" onclick="window.location.href='lesson.html?course=${c.id}&module=0&lesson=0'">▶ ${pct>0?'Continue Learning':'Start Course'}</button>`
+            : CU
+              ? `<button class="enroll-btn" onclick="buyCourseDirect('${c.id}')">Buy Now — ${formatPrice(c.price)}</button>`
+              : `<button class="enroll-btn" onclick="window.location.href='index.html'">Sign In to Purchase</button>`
+          }
+          <button class="back-btn" onclick="window.location.href='courses.html'">← Back to Courses</button>
+          <div class="card-feats">${c.features.slice(0,5).map(f=>`<div class="card-feat">${f}</div>`).join('')}</div>
+        </div>
+      </div>
+    </div>`;
+
+  // Open first module
+  toggleMod(0);
+}
+
+function renderModules(c, isOwned) {
+  return c.modules.map((m,mi)=>`
+    <div class="module-card" id="mod-${mi}">
+      <div class="module-header" onclick="toggleMod(${mi})">
+        <div class="mod-num">${mi+1}</div>
+        <div class="mod-title-text">${m.title}</div>
+        <div class="mod-meta-right">${m.lessons.length} lessons</div>
+        <svg class="mod-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="lessons-list" style="display:none">${m.lessons.map((l,li)=>{
+        const lid=`${c.id}_${mi}_${li}`;
+        const done=completedSet.has(lid);
+        const clickAction = isOwned
+          ? `window.location.href='lesson.html?course=${c.id}&module=${mi}&lesson=${li}'`
+          : CU ? `buyCourseDirect('${c.id}')` : `window.location.href='index.html'`;
+        return `<div class="lesson-row" onclick="${clickAction}">
+          <span class="lesson-type">${l.type==='video'?'▶':'💻'}</span>
+          <span class="lesson-name-text">${l.name}</span>
+          <span class="lesson-dur">${l.dur}</span>
+          ${done?'<span class="lesson-done-check">✅</span>':!isOwned?'<span style="font-size:.7rem;color:var(--text-dim)">🔒</span>':''}
+        </div>`;
+      }).join('')}</div>
+    </div>`).join('');
+}
+
+function toggleMod(i) {
+  const card=document.getElementById('mod-'+i); if(!card) return;
+  const list=card.querySelector('.lessons-list');
+  const isOpen=list.style.display!=='none';
+  list.style.display=isOpen?'none':'block';
+  card.classList.toggle('open',!isOpen);
+}
+
+(function(){document.body.dataset.theme=localStorage.getItem('mi_theme')||'blue';})();
+</script>
+</body>
+</html>

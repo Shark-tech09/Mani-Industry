@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mani Industries — Learn Coding the Smart Way</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+<style>
+.course-price-row{display:flex;align-items:center;gap:1rem;background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;cursor:pointer;transition:all .25s}
+.course-price-row:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 25px var(--glow)}
+.featured-row{border-color:rgba(255,215,0,.3);background:rgba(255,215,0,.04)}
+.cpr-icon{font-size:1.8rem;flex-shrink:0}
+.cpr-info{flex:1}
+.cpr-title{font-family:'Orbitron',monospace;font-size:.82rem;font-weight:700;margin-bottom:.2rem}
+.cpr-meta{font-size:.75rem;color:var(--text-dim)}
+.cpr-price{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:var(--accent);white-space:nowrap}
+.card-price-tag{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:var(--accent);margin:.6rem 0 .9rem;display:flex;align-items:baseline;gap:.4rem}
+.card-price-sub{font-family:'Rajdhani',sans-serif;font-size:.72rem;color:var(--text-dim);font-weight:400}
+</style>
+</head>
+<body data-theme="blue">
+
+<div id="loadingScreen">
+  <canvas id="loadingCanvas"></canvas>
+  <div id="loadingCenter">
+    <div id="progressRing">
+      <svg id="ringSVG" viewBox="0 0 200 200">
+        <circle id="ringBg" cx="100" cy="100" r="80" fill="none" stroke="rgba(0,200,255,0.1)" stroke-width="2"/>
+        <circle id="ringFill" cx="100" cy="100" r="80" fill="none" stroke="#00c8ff" stroke-width="2"
+          stroke-dasharray="502.65" stroke-dashoffset="502.65" stroke-linecap="round" transform="rotate(-90 100 100)"/>
+      </svg>
+      <div id="percentText">0%</div>
+    </div>
+  </div>
+  <div id="loadingLogo">
+    <img src="logo.png" alt="M" onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'">
+    <div id="logoFallback" style="display:none">M</div>
+    <div id="loadingLogoText">MANI INDUSTRIES</div>
+  </div>
+  <div id="generativeCanvas" style="display:none"><canvas id="genCanvas"></canvas></div>
+</div>
+
+<div id="mainSite" style="opacity:0;pointer-events:none;">
+
+  <nav id="navbar">
+    <div class="nav-logo" id="navLogo" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+      <img src="logo.png" alt="M" onerror="this.style.display='none';document.getElementById('navLogoFallback').style.display='flex'">
+      <div id="navLogoFallback" class="nav-logo-fallback" style="display:none">M</div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#home"     class="nav-link active">Home</a></li>
+      <li><a href="#programs" class="nav-link" onclick="event.preventDefault();smoothScroll('programs')">Programs</a></li>
+      <li><a href="#pricing"  class="nav-link" onclick="event.preventDefault();smoothScroll('pricing')">Pricing</a></li>
+      <li><a href="#about"    class="nav-link" onclick="event.preventDefault();smoothScroll('about')">About</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="theme-switcher">
+        <button class="theme-btn" id="themeBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </button>
+        <div class="theme-dropdown" id="themeDropdown">
+          <div class="theme-title">Choose Theme</div>
+          <div class="theme-grid">
+            <button class="theme-option active" data-theme="blue"   style="background:#00c8ff"></button>
+            <button class="theme-option"        data-theme="red"    style="background:#ff3366"></button>
+            <button class="theme-option"        data-theme="orange" style="background:#ff6b35"></button>
+            <button class="theme-option"        data-theme="yellow" style="background:#ffd700"></button>
+            <button class="theme-option"        data-theme="green"  style="background:#00ff88"></button>
+            <button class="theme-option"        data-theme="purple" style="background:#8b5cf6"></button>
+            <button class="theme-option"        data-theme="pink"   style="background:#ec4899"></button>
+            <button class="theme-option"        data-theme="brown"  style="background:#c2855a"></button>
+            <button class="theme-option"        data-theme="dark"   style="background:#888"></button>
+          </div>
+        </div>
+      </div>
+      <button class="icon-btn" id="notifBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="notif-dot"></span>
+      </button>
+      <div id="profileNavWrap" style="position:relative">
+        <button class="icon-btn" id="profileBtn" onclick="openModal('signin')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+        </button>
+        <div class="user-nav-chip" id="userNavChip" style="display:none" onclick="toggleProfileMenu()">
+          <div class="user-nav-avatar" id="userNavAvatar">U</div>
+          <span class="user-nav-name" id="userNavName">User</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="profile-dropdown" id="profileDropdown" style="display:none">
+          <div class="profile-dd-header">
+            <div class="profile-dd-avatar" id="profileDdAvatar">U</div>
+            <div><div class="profile-dd-name" id="profileDdName">User</div><div class="profile-dd-email" id="profileDdEmail"></div></div>
+          </div>
+          <div class="profile-dd-divider"></div>
+          <a class="profile-dd-item" href="dashboard.html">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Dashboard</a>
+          <a class="profile-dd-item" href="dashboard.html">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> My Courses</a>
+          <a class="profile-dd-item" href="dashboard.html">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile</a>
+          <div class="profile-dd-divider"></div>
+          <div class="profile-dd-item danger" onclick="handleSignOut()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out</div>
+        </div>
+      </div>
+    </div>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </nav>
+
+  <!-- HERO -->
+  <section id="home" class="hero-section">
+    <div class="hero-bg"><canvas id="heroCanvas"></canvas></div>
+    <div class="hero-content">
+      <div class="hero-left">
+        <div class="hero-badge">🚀 Next-Gen Learning Platform</div>
+        <h1 class="hero-title">Learn Coding<br><span class="accent">the Smart Way</span></h1>
+        <p class="hero-sub">Java, Python, JS, ML, Robotics &amp; more — from basics to real-world projects</p>
+        <div class="hero-stats-row">
+          <div class="hero-stat"><span class="hero-stat-num">500+</span><span class="hero-stat-label">Students</span></div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat"><span class="hero-stat-num">9+</span><span class="hero-stat-label">Courses</span></div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat"><span class="hero-stat-num">Free</span><span class="hero-stat-label">To Start</span></div>
+        </div>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="openModal('signup')">Start Learning Free</button>
+          <button class="btn-outline" onclick="smoothScroll('programs')">Browse Programs</button>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="hero-image-placeholder">
+          <div class="placeholder-content">
+            <div class="code-animation">
+              <div class="code-line"><span class="kw">const</span> <span class="var">courses</span> = [<span class="str">"Java"</span>,<span class="str">"Python"</span>,<span class="str">"ML"</span>];</div>
+              <div class="code-line"><span class="kw">function</span> <span class="fn">buildFuture</span>() {</div>
+              <div class="code-line indent"><span class="kw">return</span> courses.<span class="fn">map</span>(c => <span class="str">`Master ${c}`</span>);</div>
+              <div class="code-line">}</div>
+              <div class="code-line blink"><span class="comment">// Your journey starts here_</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll"><span>Scroll</span><div class="scroll-line"></div></div>
+  </section>
+
+  <!-- ALL COURSES -->
+  <section id="programs" class="programs-section">
+    <div class="section-container">
+      <div class="section-header">
+        <div class="section-tag">Programs</div>
+        <h2 class="section-title">Our <span class="accent">Courses</span></h2>
+        <p class="section-sub">Purchase individually · 1-year full access · 2 live classes per week</p>
+        <div class="course-filters">
+          <button class="filter-btn active" data-filter="all" onclick="filterCourses('all',this)">All</button>
+          <button class="filter-btn" data-filter="web"      onclick="filterCourses('web',this)">Web Dev</button>
+          <button class="filter-btn" data-filter="data"     onclick="filterCourses('data',this)">Data & AI</button>
+          <button class="filter-btn" data-filter="hardware" onclick="filterCourses('hardware',this)">Hardware</button>
+          <button class="filter-btn" data-filter="language" onclick="filterCourses('language',this)">Languages</button>
+        </div>
+      </div>
+
+      <div class="programs-grid" id="coursesGrid">
+
+        <!-- Web Development -->
+        <div class="program-card" data-cat="web" onclick="handleCourseClick('webdev')">
+          <div class="card-image">
+            <div class="card-img-placeholder" style="background:linear-gradient(135deg,rgba(0,200,255,0.08),rgba(0,200,255,0.18))">
+              <div class="card-icon" style="font-size:3rem"></div>
+              <img src="images/js.png" alt="JavaScript Course" class="card-img">
+            </div>
+            <div class="card-badge">Popular</div>
+          </div>
+          <div class="card-body">
+            <div class="card-tag">Web Development</div>
+            <h3 class="card-title">Web Development</h3>
+            <p class="card-desc">HTML, CSS, JavaScript, React & Node.js — from zero to full stack.</p>
+            <div class="card-meta">
+              <span>📅 12 Weeks</span>
+              <span>🎯 Beginner</span>
+            </div>
+            <div class="card-price-tag">₹2,000 <span class="card-price-sub">· 1-year access</span></div>
+            <button class="btn-card">Enroll Now →</button>
+          </div>
+        </div>
+
+        <!-- Python -->
+        <div class="program-card" data-cat="language data" onclick="handleCourseClick('python')">
+          <div class="card-image">
+            <div class="card-img-placeholder" style="background:linear-gradient(135deg,rgba(255,215,0,0.08),rgba(255,215,0,0.18))">
+              <div class="card-icon" style="font-size:3rem"></div>
+              <img src="images/python.png" alt="Python Course" class="card-img">
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-tag">Language</div>
+            <h3 class="card-title">Python with Automation</h3>
+            <p class="card-desc">Core Python, automation, web scraping & real-world scripts.</p>
+            <div class="card-meta">
+              <span>📅 10 Weeks</span>
+              <span>🎯 Beginner</span>
+            </div>
+            <div class="card-price-tag">₹3,000 <span class="card-price-sub">· 1-year access</span></div>
+            <button class="btn-card">Enroll Now →</button>
+          </div>
+        </div>
+
+        <!-- C++ -->
+        <div class="program-card" data-cat="language" onclick="handleCourseClick('cpp')">
+          <div class="card-image">
+            <div class="card-img-placeholder" style="background:linear-gradient(135deg,rgba(255,107,53,0.08),rgba(255,107,53,0.18))">
+              <div class="card-icon" style="font-size:3rem"></div>
+              <img src="images/C++.png" alt="C++ Course" class="card-img">
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-tag">Language</div>
+            <h3 class="card-title">C++</h3>
+            <p class="card-desc">Systems programming, memory management, pointers & competitive coding.</p>
+            <div class="card-meta">
+              <span>📅 10 Weeks</span>
+              <span>🎯 Intermediate</span>
+            </div>
+            <div class="card-price-tag">₹2,000 <span class="card-price-sub">· 1-year access</span></div>
+            <button class="btn-card">Enroll Now →</button>
+          </div>
+        </div>
+
+        <!-- Data Science -->
+        <div class="program-card" data-cat="data" onclick="handleCourseClick('datascience')">
+          <div class="card-image">
+            <div class="card-img-placeholder" style="background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(139,92,246,0.18))">
+              <div class="card-icon" style="font-size:3rem">🧠</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-tag">AI & Data</div>
+            <h3 class="card-title">Data Science with Python</h3>
+            <p class="card-desc">NumPy, Pandas, Matplotlib, ML models & real datasets.</p>
+            <div class="card-meta">
+              <span>📅 10 Weeks</span>
+              <span>🎯 Intermediate</span>
+            </div>
+            <div class="card-price-tag">₹2,500 <span class="card-price-sub">· 1-year access</span></div>
+            <button class="btn-card">Enroll Now →</button>
+          </div>
+        </div>
+
+        <!-- Machine Learning -->
+        <div class="program-card" data-cat="data" onclick="handleCourseClick('ml')">
+          <div class="card-image">
+            <div class="card-img-placeholder" style="background:linear-gradient(135deg,rgba(0,255,136,0.08),rgba(0,255,136,0.18))">
+              <div class="card-icon" style="font-size:3rem">🤖</div>
+            </div>
+            <div class="card-badge">New</div>
+          </div>
+          <div class="card-body">
+            <div class="card-tag">AI & ML</div>
+            <h3 class="card-title">Machine Learning</h3>
+            <p class="card-desc">Supervised & unsupervised learning, neural networks with TensorFlow.</p>
+            <div class="card-meta">
+              <span>📅 12 Weeks</span>
+              <span>🎯 Advanced</span>
+            </div>
+            <div class="card-price-tag">₹3,000 <span class="card-price-sub">· 1-year access</span></div>
+            <button class="btn-card">Enroll Now →</button>
+          </div>
+        </div>
+
+        <!-- Robotics -->
+        <div class="program-card" data-cat="hardware" onclick="handleCourseClick('robotics')">
+          <div class="card-image">
+            <div class="card-img-placeholder" style="background:linear-gradient(135deg,rgba(236,72,153,0.08),rgba(236,72,153,0.18))">
+              <div class="card-icon" style="font-size:3rem">🦾</div>
+            </div>
+            <div class="card-badge" style="background:rgba(255,215,0,0.9);color:#040d1a">Kit Included</div>
+          </div>
+          <div class="card-body">
+            <div class="card-tag">Hardware & AI</div>
+            <h3 class="card-title">Robotics with Kit</h3>
+            <p class="card-desc">Build real robots with Arduino — hardware kit shipped to your door.</p>
+            <div class="card-meta">
+              <span>📅 8 Weeks</span>
+              <span>🎯 All Levels</span>
+            </div>
+            <div class="card-price-tag">₹5,000 <span class="card-price-sub">· Kit + 1-year access</span></div>
+            <button class="btn-card">Enroll Now →</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Browse All button -->
+      <div style="text-align:center;margin-top:2.5rem">
+        <a href="courses.html" class="btn-primary" style="display:inline-block;padding:14px 44px;font-size:0.9rem;text-decoration:none">Browse All Courses →</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="about-section">
+    <div class="section-container">
+      <div class="about-grid">
+        <div class="about-text">
+          <div class="section-tag">About Us</div>
+          <h2 class="section-title">Engineering <span class="accent">Solutions</span>,<br>Not Just Code</h2>
+          <p class="about-desc">At Mani Industries, we bridge the gap between theoretical knowledge and real-world application. Our approach transforms learning into practical problem-solving, empowering students to not just write code, but engineer solutions.</p>
+          <div class="about-stats">
+            <div class="stat"><span class="stat-num">500+</span><span class="stat-label">Students</span></div>
+            <div class="stat"><span class="stat-num">9+</span><span class="stat-label">Courses</span></div>
+            <div class="stat"><span class="stat-num">95%</span><span class="stat-label">Success Rate</span></div>
+          </div>
+        </div>
+        <div class="about-image-placeholder">
+          <div class="image-inner">
+            <div class="floating-card card1"><span>🎓</span> Learn by Doing</div>
+            <div class="floating-card card2"><span>💡</span> Real Projects</div>
+            <div class="img-placeholder-grid"><div class="mini-card"></div><div class="mini-card"></div><div class="mini-card"></div><div class="mini-card"></div></div>
+            <p style="color:var(--accent);font-family:'Orbitron';font-size:0.65rem;opacity:0.5;margin-top:1rem;">ADD STUDENT LEARNING IMAGE HERE</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" class="pricing-section">
+    <div class="section-container">
+      <div class="section-header">
+        <div class="section-tag">Plans</div>
+        <h2 class="section-title">Simple <span class="accent">Pricing</span></h2>
+        <p class="section-sub">Courses are purchased individually. Subscription unlocks platform features.</p>
+      </div>
+      <div class="pricing-grid">
+
+        <div class="pricing-card">
+          <div class="plan-name">Free</div>
+          <div class="plan-price">₹0<span>/mo</span></div>
+          <ul class="plan-features">
+            <li>✓ Browse & buy any course</li>
+            <li>✓ Basic progress tracking</li>
+            <li>✓ Certificate on completion</li>
+            <li class="dim">✗ Online code editor</li>
+            <li class="dim">✗ Ebook downloads</li>
+            <li class="dim">✗ Community channels</li>
+          </ul>
+          <button class="btn-outline plan-btn" onclick="openModal('signup')">Get Started</button>
+        </div>
+
+        <div class="pricing-card">
+          <div class="plan-name">Basic</div>
+          <div class="plan-price">₹399<span>/mo</span></div>
+          <ul class="plan-features">
+            <li>✓ Everything in Free</li>
+            <li>✓ Online code editor</li>
+            <li>✓ Download all ebooks (50+)</li>
+            <li>✓ Community channels</li>
+            <li>✓ Weekly leaderboard</li>
+            <li class="dim">✗ Group projects</li>
+          </ul>
+          <button class="btn-outline plan-btn" onclick="handlePlanClick('basic',399)">Get Basic</button>
+        </div>
+
+        <div class="pricing-card featured">
+          <div class="plan-badge">Most Popular</div>
+          <div class="plan-name">Pro</div>
+          <div class="plan-price">₹799<span>/mo</span></div>
+          <ul class="plan-features">
+            <li>✓ Everything in Basic</li>
+            <li>✓ Group projects (up to 4)</li>
+            <li>✓ Weekly competitions</li>
+            <li>✓ Live session recordings</li>
+            <li>✓ Priority support</li>
+            <li>✓ Exclusive Pro resources</li>
+          </ul>
+          <button class="btn-primary plan-btn" onclick="handlePlanClick('pro',799)">Go Pro</button>
+        </div>
+
+        <div class="pricing-card">
+          <div class="plan-name">Premium</div>
+          <div class="plan-price">₹1,499<span>/mo</span></div>
+          <ul class="plan-features">
+            <li>✓ Everything in Pro</li>
+            <li>✓ 1-on-1 mentorship sessions</li>
+            <li>✓ WhatsApp direct support</li>
+            <li>✓ Resume & project review</li>
+            <li>✓ Placement assistance</li>
+            <li>✓ Earliest course access</li>
+          </ul>
+          <button class="btn-outline plan-btn" onclick="handlePlanClick('premium',1499)">Go Premium</button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-bg"></div>
+    <div class="cta-content">
+      <h2>Ready to <span class="accent">Engineer</span> Your Future?</h2>
+      <p>Join hundreds of students building real-world skills with Mani Industries.</p>
+      <button class="btn-primary large" onclick="openModal('signup')">Start Learning — It's Free</button>
+    </div>
+  </section>
+
+  <footer id="footer">
+    <div class="footer-content">
+      <div class="footer-logo"><img src="logo.png" alt="M" width="60" onerror="this.style.display='none'"><span>Mani Industries</span></div>
+      <div class="footer-links">
+        <a href="/cdn-cgi/l/email-protection#7f1c10110b1e1c0b3f121e111616111b0a0c0b0d161a0c511c1012">📧 <span class="__cf_email__" data-cfemail="92f1fdfce6f3f1e6d2fff3fcfbfbfcf6e7e1e6e0fbf7e1bcf1fdff">[email&#160;protected]</span></a>
+        <a href="https://instagram.com/maniindustries" target="_blank">📸 @maniindustries</a>
+      </div>
+      <p class="footer-copy">© 2025 Mani Industries. All rights reserved.</p>
+    </div>
+  </footer>
+</div>
+
+<!-- AUTH MODAL -->
+<div id="authModal" class="modal-overlay">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="signinTab" onclick="switchTab('signin')">Sign In</button>
+      <button class="modal-tab" id="signupTab" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+    <div id="signinForm">
+      <h2 class="modal-title">Welcome Back</h2>
+      <p class="modal-sub">Sign in to continue learning</p>
+      <button class="btn-google" onclick="handleGoogleSignIn()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+      <div class="or-divider"><span>or</span></div>
+      <div class="form-group"><label>Email <span class="required">*</span></label><input type="email" id="siEmail" placeholder="you@example.com" class="form-input"></div>
+      <div class="form-group"><label>Password <span class="required">*</span></label><input type="password" id="siPassword" placeholder="••••••••" class="form-input"><span class="eye-toggle" onclick="togglePwd('siPassword')">👁</span></div>
+      <div class="form-row"><label class="checkbox-label"><input type="checkbox" id="rememberMe"> Remember Me</label><a class="forgot-link" onclick="showForgot()">Forgot Password?</a></div>
+      <button class="btn-primary full" id="signinBtn" onclick="handleSignIn()">Sign In</button>
+      <p class="modal-switch">No account? <a onclick="switchTab('signup')">Sign Up free</a></p>
+    </div>
+    <div id="signupForm" style="display:none">
+      <h2 class="modal-title">Create Account</h2>
+      <p class="modal-sub">Join Mani Industries today — it's free</p>
+      <button class="btn-google" onclick="handleGoogleSignIn()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+      <div class="or-divider"><span>or</span></div>
+      <div class="form-group"><label>Username <span class="required">*</span></label><input type="text" id="suUsername" placeholder="your_username" class="form-input"></div>
+      <div class="form-group"><label>Email <span class="required">*</span></label><input type="email" id="suEmail" placeholder="you@example.com" class="form-input"></div>
+      <div class="form-group"><label>Password <span class="required">*</span></label><input type="password" id="suPassword" placeholder="Min 6 characters" class="form-input"><span class="eye-toggle" onclick="togglePwd('suPassword')">👁</span></div>
+      <div class="form-group"><label>Mobile <span class="optional">(optional)</span></label><input type="tel" id="suPhone" placeholder="+91 XXXXX XXXXX" class="form-input"></div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Country <span class="required">*</span></label><select id="suCountry" class="form-input"><option>India</option><option>USA</option><option>UK</option><option>UAE</option><option>Other</option></select></div>
+        <div class="form-group"><label>State <span class="optional">(optional)</span></label><input type="text" id="suState" placeholder="Maharashtra" class="form-input"></div>
+      </div>
+      <div class="form-group"><label>PIN Code <span class="optional">(optional)</span></label><input type="text" id="suPin" placeholder="422001" class="form-input" maxlength="6"></div>
+      <div class="form-group">
+        <label>Profile Photo <span class="optional">(optional)</span></label>
+        <div class="file-upload" onclick="document.getElementById('profileUpload').click()"><span>📸 Upload Photo</span><input type="file" id="profileUpload" accept="image/*" style="display:none" onchange="previewProfile(this)"></div>
+        <img id="profilePreview" style="display:none;width:60px;height:60px;border-radius:50%;margin-top:8px;object-fit:cover;border:2px solid var(--accent)">
+      </div>
+      <button class="btn-primary full" id="signupBtn" onclick="handleSignUp()">Create Free Account</button>
+      <p class="modal-switch">Already have account? <a onclick="switchTab('signin')">Sign In</a></p>
+    </div>
+    <div id="forgotForm" style="display:none">
+      <h2 class="modal-title">Reset Password</h2>
+      <p class="modal-sub">We'll email you a reset link</p>
+      <div class="form-group"><label>Email Address</label><input type="email" id="resetEmail" placeholder="you@example.com" class="form-input"></div>
+      <button class="btn-primary full" onclick="handleForgot()">Send Reset Link</button>
+      <p class="modal-switch"><a onclick="switchTab('signin')">← Back to Sign In</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION PANEL -->
+<div id="notifPanel" class="notif-panel" style="display:none">
+  <div class="notif-header"><span>Notifications</span><button onclick="document.getElementById('notifPanel').style.display='none'">✕</button></div>
+  <div class="notif-item"><div class="notif-icon">🎉</div><div><div class="notif-text">Welcome to Mani Industries!</div><div class="notif-time">Just now</div></div></div>
+  <div class="notif-item"><div class="notif-icon">📚</div><div><div class="notif-text">New course: Machine Learning is live</div><div class="notif-time">1 day ago</div></div></div>
+  <div class="notif-item"><div class="notif-icon">🏆</div><div><div class="notif-text">Leaderboard updated for this week</div><div class="notif-time">2 days ago</div></div></div>
+</div>
+
+<div id="mobileMenu" class="mobile-menu">
+  <ul>
+    <li><a onclick="closeMobileMenu()">Home</a></li>
+    <li><a onclick="closeMobileMenu();smoothScroll('programs')">Programs</a></li>
+    <li><a onclick="closeMobileMenu();smoothScroll('pricing')">Pricing</a></li>
+    <li><a onclick="closeMobileMenu();smoothScroll('about')">About</a></li>
+    <li><a onclick="closeMobileMenu();openModal('signin')">Sign In</a></li>
+  </ul>
+</div>
+
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="payments.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

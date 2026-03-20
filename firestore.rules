@@ -1,0 +1,91 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── helpers ──────────────────────────────────────────────────
+    function isSignedIn()    { return request.auth != null; }
+    function isOwner(uid)    { return isSignedIn() && request.auth.uid == uid; }
+    function isAdmin()       { return isSignedIn() && request.auth.token.admin == true; }
+    function ownsCourse(uid, courseId) {
+      return exists(/databases/$(database)/documents/coursePurchases/$(uid + '_' + courseId));
+    }
+
+    // ── users ─────────────────────────────────────────────────────
+    match /users/{uid} {
+      allow read:   if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── courses ───────────────────────────────────────────────────
+    match /courses/{courseId} {
+      allow read:   if true;                   // public catalogue
+      allow write:  if isAdmin();
+      match /modules/{modId} {
+        allow read:  if true;
+        allow write: if isAdmin();
+        match /lessons/{lessonId} {
+          allow read:  if isSignedIn() && ownsCourse(request.auth.uid, courseId);
+          allow write: if isAdmin();
+        }
+      }
+    }
+
+    // ── course purchases ──────────────────────────────────────────
+    match /coursePurchases/{docId} {
+      allow read:   if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();              // admin approves UPI payments
+      allow delete: if isAdmin();
+    }
+
+    // ── subscriptions ─────────────────────────────────────────────
+    match /subscriptions/{docId} {
+      allow read:   if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── progress ──────────────────────────────────────────────────
+    match /progress/{uid} {
+      allow read, write: if isOwner(uid);
+      match /courses/{courseId} {
+        allow read, write: if isOwner(uid);
+        match /lessons/{lessonId} {
+          allow read, write: if isOwner(uid);
+        }
+      }
+    }
+
+    // ── live sessions ─────────────────────────────────────────────
+    match /liveSessions/{sessionId} {
+      allow read:  if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ── admin logs ────────────────────────────────────────────────
+    match /adminLogs/{logId} {
+      allow read:  if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // ── platform settings ─────────────────────────────────────────
+    match /settings/{doc} {
+      allow read:  if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ── ebooks ────────────────────────────────────────────────────
+    match /ebooks/{ebookId} {
+      allow read:  if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ── notifications ─────────────────────────────────────────────
+    match /notifications/{uid}/{notifId} {
+      allow read, write: if isOwner(uid);
+    }
+  }
+}

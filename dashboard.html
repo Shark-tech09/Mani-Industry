@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Mani Industries</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── VARIABLES ── */
+:root{
+  --bg:#050d1a;--bg2:#070f20;--bg3:#0a1628;
+  --accent:#00c8ff;--accent2:#0088cc;
+  --glow:rgba(0,200,255,0.2);
+  --text:#e8f4ff;--text-dim:#7a9bb5;
+  --border:rgba(0,200,255,0.12);
+  --nav-bg:rgba(5,13,26,0.97);
+  --sidebar-w:260px;
+}
+[data-theme="red"]   {--accent:#ff3366;--accent2:#cc1144;--glow:rgba(255,51,102,0.2);--border:rgba(255,51,102,0.12)}
+[data-theme="orange"]{--accent:#ff6b35;--accent2:#e05020;--glow:rgba(255,107,53,0.2);--border:rgba(255,107,53,0.12)}
+[data-theme="yellow"]{--accent:#ffd700;--accent2:#ccaa00;--glow:rgba(255,215,0,0.2);--border:rgba(255,215,0,0.12)}
+[data-theme="green"] {--accent:#00ff88;--accent2:#00cc66;--glow:rgba(0,255,136,0.2);--border:rgba(0,255,136,0.12)}
+[data-theme="purple"]{--accent:#8b5cf6;--accent2:#6d35e0;--glow:rgba(139,92,246,0.2);--border:rgba(139,92,246,0.12)}
+[data-theme="pink"]  {--accent:#ec4899;--accent2:#c0347a;--glow:rgba(236,72,153,0.2);--border:rgba(236,72,153,0.12)}
+[data-theme="brown"] {--accent:#c2855a;--accent2:#a06840;--glow:rgba(194,133,90,0.2);--border:rgba(194,133,90,0.12)}
+[data-theme="dark"]  {--accent:#aaa;--accent2:#888;--glow:rgba(150,150,150,0.15);--border:rgba(150,150,150,0.1)}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;opacity:.5}
+
+/* ── AUTH GUARD ── */
+#authGuard{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:1.2rem}
+.guard-logo{font-family:'Orbitron',monospace;font-size:3.5rem;color:var(--accent);animation:gPulse 1.5s ease-in-out infinite}
+@keyframes gPulse{0%,100%{text-shadow:0 0 20px var(--accent)}50%{text-shadow:0 0 60px var(--accent),0 0 120px var(--accent)}}
+.guard-text{font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:5px;color:var(--text-dim)}
+
+/* ── NAVBAR ── */
+#navbar{
+  position:fixed;top:0;left:0;right:0;height:68px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;
+  background:var(--nav-bg);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);z-index:1000;
+}
+.nav-logo{display:flex;align-items:center;cursor:pointer;gap:.5rem}
+.nav-logo img{width:38px;height:38px;object-fit:contain;filter:drop-shadow(0 0 8px var(--accent))}
+.nav-logo-fallback{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;font-family:'Orbitron',monospace;font-weight:900;font-size:1.2rem;color:var(--bg);display:flex;align-items:center;justify-content:center}
+.nav-right{display:flex;align-items:center;gap:.75rem}
+.icon-btn{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text-dim);display:flex;align-items:center;justify-content:center;transition:all .25s;position:relative}
+.icon-btn:hover{color:var(--accent);border-color:var(--accent);background:rgba(0,200,255,.06)}
+.notif-dot{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--accent);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.user-chip{display:flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:50px;padding:5px 16px 5px 5px;cursor:pointer;transition:all .25s}
+.user-chip:hover{border-color:var(--accent);background:rgba(0,200,255,.06)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-weight:900;font-size:.82rem;color:var(--bg);overflow:hidden;flex-shrink:0}
+.user-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.user-name{font-family:'Orbitron',monospace;font-size:.68rem;font-weight:700;color:var(--text)}
+.theme-switcher{position:relative}
+.theme-btn{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text-dim);display:flex;align-items:center;justify-content:center;transition:all .25s}
+.theme-btn:hover{color:var(--accent);border-color:var(--accent)}
+.theme-dropdown{position:absolute;top:calc(100% + 10px);right:0;background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:1rem;min-width:190px;display:none;box-shadow:0 20px 60px rgba(0,0,0,.6);z-index:9999}
+.theme-dropdown.open{display:block;animation:dropIn .2s ease}
+@keyframes dropIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.theme-title{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:2px;color:var(--text-dim);margin-bottom:.8rem;text-transform:uppercase}
+.theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.theme-option{width:28px;height:28px;border-radius:50%;border:2px solid transparent;transition:all .2s;cursor:pointer}
+.theme-option:hover,.theme-option.active{border-color:#fff;transform:scale(1.25)}
+
+/* ── FULL LAYOUT ── */
+.dash-wrap{
+  display:flex;
+  min-height:100vh;
+  padding-top:68px;
+}
+
+/* ── SIDEBAR ── */
+aside#sidebar{
+  position:fixed;
+  top:68px;
+  left:0;
+  width:var(--sidebar-w);
+  height:calc(100vh - 68px);
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  padding:1.25rem .9rem 1.5rem;
+  display:flex;
+  flex-direction:column;
+  gap:.2rem;
+  overflow-y:auto;
+  z-index:100;
+  transition:transform .3s ease;
+  flex-shrink:0;
+}
+.sb-section{
+  font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:3px;
+  color:var(--text-dim);text-transform:uppercase;
+  padding:.9rem .6rem .35rem;margin-top:.25rem;
+}
+.sb-link{
+  display:flex;align-items:center;gap:.75rem;
+  padding:10px 13px;border-radius:10px;
+  color:var(--text-dim);font-weight:600;font-size:.9rem;
+  transition:all .2s;cursor:pointer;
+  border:1px solid transparent;width:100%;text-align:left;
+}
+.sb-link:hover{color:var(--accent);background:rgba(0,200,255,.06);border-color:var(--border)}
+.sb-link.active{color:var(--accent);background:rgba(0,200,255,.12);border-color:var(--border)}
+.sb-link svg{flex-shrink:0;opacity:.6;transition:opacity .2s}
+.sb-link.active svg,.sb-link:hover svg{opacity:1}
+.sb-badge{margin-left:auto;background:var(--accent);color:var(--bg);font-family:'Orbitron',monospace;font-size:.56rem;font-weight:700;padding:2px 8px;border-radius:50px;min-width:20px;text-align:center}
+.sb-signout{margin-top:auto;padding-top:1rem;border-top:1px solid var(--border)}
+
+/* ── MAIN CONTENT ── */
+#main{
+  margin-left:var(--sidebar-w);
+  flex:1;
+  min-height:calc(100vh - 68px);
+  padding:2.5rem 3rem;          /* generous horizontal padding */
+  max-width:100%;
+  width:calc(100vw - var(--sidebar-w));
+}
+.page-panel{display:none;animation:fadeUp .35s ease;max-width:1400px}
+.page-panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── PAGE HEADER ── */
+.page-header-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2.25rem;flex-wrap:wrap;gap:1rem}
+.page-header-left{}
+.page-tag{font-family:'Orbitron',monospace;font-size:.56rem;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:.4rem}
+.page-title{font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;line-height:1.2;margin-bottom:.3rem}
+.page-title span{color:var(--accent)}
+.page-sub{color:var(--text-dim);font-size:.95rem}
+
+/* ── STATS ROW ── */
+.stats-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1.25rem;
+  margin-bottom:2.25rem;
+}
+.stat-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:18px;padding:1.6rem 1.5rem;
+  position:relative;overflow:hidden;
+  transition:all .3s;cursor:default;
+}
+.stat-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 16px 40px var(--glow)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.stat-icon{font-size:1.8rem;margin-bottom:.75rem;display:block}
+.stat-value{font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;color:var(--accent);line-height:1}
+.stat-label{color:var(--text-dim);font-size:.82rem;margin-top:.35rem}
+.stat-delta{font-size:.72rem;margin-top:.5rem;color:#00ff88}
+
+/* ── DASH GRID ── */
+.dash-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1.5rem;
+  margin-bottom:2rem;
+}
+.dash-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:18px;padding:1.75rem;
+  transition:border-color .3s;
+}
+.dash-card:hover{border-color:rgba(0,200,255,.2)}
+.dash-card.wide{grid-column:1/-1}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.card-title{font-family:'Orbitron',monospace;font-size:.8rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.card-link{font-size:.82rem;color:var(--accent);cursor:pointer;opacity:.8;transition:opacity .2s}
+.card-link:hover{opacity:1;text-decoration:underline}
+
+/* ── COURSE ITEMS ── */
+.course-item{
+  display:flex;align-items:center;gap:1rem;
+  padding:.85rem 1rem;border-radius:12px;
+  cursor:pointer;transition:all .2s;
+  border:1px solid transparent;margin-bottom:.6rem;
+}
+.course-item:hover{background:rgba(255,255,255,.03);border-color:var(--border)}
+.course-item:last-child{margin-bottom:0}
+.ci-icon{
+  width:44px;height:44px;border-radius:12px;
+  background:rgba(0,200,255,.08);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;flex-shrink:0;
+}
+.ci-info{flex:1;min-width:0}
+.ci-name{font-weight:700;font-size:.95rem;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-meta{color:var(--text-dim);font-size:.78rem}
+.prog-bar{height:5px;background:rgba(255,255,255,.06);border-radius:50px;margin-top:7px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:50px;transition:width 1.2s ease}
+.ci-pct{font-family:'Orbitron',monospace;font-size:.68rem;color:var(--accent);white-space:nowrap;flex-shrink:0}
+
+/* ── ACTIVITY ── */
+.activity-item{display:flex;align-items:flex-start;gap:1rem;padding:.85rem 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.act-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);flex-shrink:0;margin-top:5px}
+.act-dot.dim{background:var(--text-dim);box-shadow:none}
+.act-text{font-size:.9rem;line-height:1.55;flex:1}
+.act-time{font-size:.72rem;color:var(--text-dim);white-space:nowrap}
+
+/* ── LESSON ROWS ── */
+.lesson-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 1.1rem;background:rgba(255,255,255,.02);
+  border:1px solid var(--border);border-radius:12px;
+  margin-bottom:.65rem;cursor:pointer;transition:all .25s;
+}
+.lesson-row:hover{border-color:var(--accent);background:rgba(0,200,255,.04);transform:translateX(3px)}
+.lr-left{display:flex;align-items:center;gap:.9rem}
+.lr-num{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:.62rem;font-weight:700;color:var(--bg);flex-shrink:0}
+.lr-title{font-weight:700;font-size:.92rem}
+.lr-sub{color:var(--text-dim);font-size:.78rem;margin-top:2px}
+.lr-badge{font-family:'Orbitron',monospace;font-size:.57rem;padding:4px 11px;border-radius:50px;font-weight:700;white-space:nowrap}
+.badge-next{background:rgba(0,200,255,.15);color:var(--accent);border:1px solid var(--border)}
+.badge-done{background:rgba(0,255,136,.1);color:#00ff88;border:1px solid rgba(0,255,136,.2)}
+.badge-lock{background:rgba(255,255,255,.05);color:var(--text-dim);border:1px solid rgba(255,255,255,.08)}
+.badge-live{background:rgba(255,50,50,.15);color:#ff5050;border:1px solid rgba(255,50,50,.2);animation:livePulse 2s ease-in-out infinite}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* ── LEADERBOARD ── */
+.lb-row{display:flex;align-items:center;gap:1rem;padding:.9rem 1rem;border-radius:12px;margin-bottom:.5rem;background:rgba(255,255,255,.02);border:1px solid var(--border);transition:all .2s}
+.lb-row:hover{border-color:var(--accent);transform:translateX(3px)}
+.lb-rank{font-family:'Orbitron',monospace;font-size:.88rem;font-weight:900;width:30px;text-align:center;color:var(--text-dim)}
+.lb-rank.top{color:var(--accent)}
+.lb-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:.8rem;font-weight:700;color:var(--bg);flex-shrink:0}
+.lb-name{flex:1;font-weight:600;font-size:.92rem}
+.lb-pts{font-family:'Orbitron',monospace;font-size:.78rem;color:var(--accent);font-weight:700}
+
+/* ── PLAN CHIP ── */
+.plan-chip{display:inline-flex;align-items:center;gap:.4rem;font-family:'Orbitron',monospace;font-size:.58rem;font-weight:700;padding:4px 13px;border-radius:50px;letter-spacing:1px}
+.plan-free{background:rgba(122,155,181,.1);color:var(--text-dim);border:1px solid rgba(122,155,181,.2)}
+.plan-basic{background:rgba(0,200,255,.1);color:#00c8ff;border:1px solid rgba(0,200,255,.2)}
+.plan-pro{background:rgba(139,92,246,.1);color:#8b5cf6;border:1px solid rgba(139,92,246,.2)}
+.plan-premium{background:rgba(255,215,0,.1);color:#ffd700;border:1px solid rgba(255,215,0,.2)}
+
+/* ── PROFILE ── */
+.profile-hero{
+  display:flex;align-items:center;gap:2.5rem;
+  padding:2.25rem;background:var(--bg3);
+  border:1px solid var(--border);border-radius:22px;
+  margin-bottom:2rem;position:relative;overflow:hidden;
+}
+.profile-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:280px;height:280px;background:radial-gradient(circle,var(--glow),transparent 70%);pointer-events:none}
+.profile-avatar-lg{
+  width:100px;height:100px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Orbitron',monospace;font-size:2.5rem;font-weight:900;
+  color:var(--bg);border:3px solid var(--accent);
+  box-shadow:0 0 35px var(--glow);overflow:hidden;flex-shrink:0;
+}
+.profile-avatar-lg img{width:100%;height:100%;object-fit:cover}
+.profile-name{font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:900;margin-bottom:.3rem}
+.profile-email{color:var(--text-dim);font-size:.9rem;margin-bottom:.9rem}
+.profile-stats{display:flex;gap:2.5rem}
+.pstat-val{font-family:'Orbitron',monospace;font-size:1.15rem;font-weight:700;color:var(--accent)}
+.pstat-label{font-size:.72rem;color:var(--text-dim);margin-top:2px}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.75rem}
+.p-field label{display:block;font-family:'Orbitron',monospace;font-size:.56rem;font-weight:600;color:var(--text-dim);letter-spacing:1px;margin-bottom:6px;text-transform:uppercase}
+.p-field input,.p-field select{
+  width:100%;padding:12px 15px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);border-radius:10px;
+  color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.95rem;
+  outline:none;transition:all .3s;
+}
+.p-field input:focus,.p-field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+.p-field input[readonly]{opacity:.45;cursor:not-allowed}
+.btn-save{
+  padding:13px 32px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:var(--bg);font-family:'Orbitron',monospace;font-weight:700;
+  font-size:.72rem;letter-spacing:1.5px;border-radius:10px;
+  transition:all .3s;box-shadow:0 4px 20px var(--glow);
+}
+.btn-save:hover{transform:translateY(-2px);box-shadow:0 8px 30px var(--glow)}
+.btn-danger{
+  padding:13px 32px;background:transparent;color:#ff3366;
+  font-family:'Orbitron',monospace;font-weight:700;font-size:.72rem;
+  letter-spacing:1.5px;border:1px solid rgba(255,51,102,.4);border-radius:10px;
+  transition:all .3s;
+}
+.btn-danger:hover{background:rgba(255,51,102,.1);border-color:#ff3366}
+
+/* ── EBOOKS ── */
+.ebook-card{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:2rem 1.5rem;text-align:center;transition:all .3s;position:relative;overflow:hidden;cursor:pointer}
+.ebook-card:hover{border-color:var(--accent);transform:translateY(-5px);box-shadow:0 16px 40px var(--glow)}
+.ebook-icon{font-size:3.2rem;margin-bottom:1rem;display:block}
+.ebook-title{font-family:'Orbitron',monospace;font-size:.85rem;font-weight:700;margin-bottom:.4rem}
+.ebook-pages{color:var(--text-dim);font-size:.8rem;margin-bottom:1.1rem}
+.ebook-btn{padding:10px 22px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:1px;border-radius:8px;border:none;cursor:pointer;transition:all .3s}
+.ebook-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px var(--glow)}
+.ebook-lock{position:absolute;inset:0;background:rgba(5,13,26,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;border-radius:16px}
+.ebook-lock-icon{font-size:2.2rem;opacity:.4}
+.ebook-lock-text{font-family:'Orbitron',monospace;font-size:.58rem;color:var(--text-dim);letter-spacing:1px}
+
+/* ── COMPETITIONS ── */
+.comp-card{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:1.6rem;margin-bottom:1rem;transition:all .25s;cursor:pointer}
+.comp-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 12px 30px var(--glow)}
+.comp-header{display:flex;align-items:center;gap:1rem;margin-bottom:.75rem}
+.comp-icon{font-size:1.9rem}
+.comp-title{font-family:'Orbitron',monospace;font-size:.85rem;font-weight:700}
+.comp-desc{color:var(--text-dim);font-size:.87rem;margin-bottom:1rem;line-height:1.6}
+.comp-footer{display:flex;align-items:center;justify-content:space-between;font-size:.8rem}
+.comp-deadline{color:#ffd700;font-family:'Orbitron',monospace;font-size:.68rem}
+
+/* ── LIVE SESSIONS ── */
+.live-session-card{
+  background:rgba(255,50,50,.05);border:1px solid rgba(255,50,50,.18);
+  border-radius:16px;padding:1.3rem 1.5rem;margin-bottom:.85rem;
+  display:flex;align-items:center;gap:1.2rem;
+  transition:all .25s;cursor:pointer;
+}
+.live-session-card:hover{border-color:rgba(255,50,50,.45);transform:translateY(-2px)}
+.live-dot{width:10px;height:10px;border-radius:50%;background:#ff3232;box-shadow:0 0 10px #ff3232;flex-shrink:0;animation:livePulse 1.5s ease-in-out infinite}
+.live-info{flex:1;min-width:0}
+.live-course{font-family:'Orbitron',monospace;font-size:.62rem;color:var(--accent);margin-bottom:.25rem;letter-spacing:1px}
+.live-topic{font-weight:700;font-size:.92rem;margin-bottom:.2rem}
+.live-time{font-size:.78rem;color:var(--text-dim)}
+.live-join-btn{padding:8px 20px;background:rgba(255,50,50,.15);border:1px solid rgba(255,50,50,.3);color:#ff5050;font-family:'Orbitron',monospace;font-size:.62rem;font-weight:700;border-radius:8px;letter-spacing:1px;transition:all .25s;white-space:nowrap;flex-shrink:0}
+.live-join-btn:hover{background:rgba(255,50,50,.28)}
+
+/* ── TOAST ── */
+.mi-toast{position:fixed;bottom:2rem;right:2rem;z-index:9999;background:var(--bg3);border:1px solid var(--accent);color:var(--text);padding:1rem 1.6rem;border-radius:12px;font-family:'Rajdhani',sans-serif;font-size:.95rem;box-shadow:0 10px 40px rgba(0,0,0,.5);animation:fadeUp .3s ease;max-width:340px;line-height:1.45}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1280px){
+  #main{padding:2rem 2rem}
+}
+@media(max-width:1100px){
+  .stats-row{grid-template-columns:1fr 1fr}
+}
+@media(max-width:960px){
+  :root{--sidebar-w:220px}
+  #main{padding:1.75rem 1.5rem}
+}
+@media(max-width:820px){
+  aside#sidebar{transform:translateX(-100%)}
+  aside#sidebar.open{transform:translateX(0)}
+  #main{margin-left:0;width:100%;padding:1.5rem}
+  .dash-grid{grid-template-columns:1fr}
+  .profile-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .profile-hero{flex-direction:column;text-align:center}
+  .profile-stats{justify-content:center}
+  #main{padding:1.25rem 1rem}
+}
+@media(max-width:400px){
+  .stats-row{grid-template-columns:1fr}
+}
+
+/* ── NOTIFICATION PANEL ── */
+.notif-panel{position:fixed;top:68px;right:1.5rem;width:360px;max-height:520px;background:var(--bg3);border:1px solid var(--border);border-radius:16px;z-index:9998;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6);transform:translateY(-8px);opacity:0;pointer-events:none;transition:all .25s cubic-bezier(.4,0,.2,1)}
+.notif-panel.open{transform:translateY(0);opacity:1;pointer-events:all}
+.notif-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;letter-spacing:1px;flex-shrink:0}
+.notif-body{overflow-y:auto;flex:1;padding:.5rem 0}
+.notif-body::-webkit-scrollbar{width:3px}
+.notif-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.notif-item{display:flex;align-items:flex-start;gap:.85rem;padding:.9rem 1.25rem;cursor:pointer;transition:background .2s;position:relative;border-bottom:1px solid rgba(255,255,255,.04)}
+.notif-item:last-child{border-bottom:none}
+.notif-item:hover{background:rgba(255,255,255,.03)}
+.notif-item.unread{background:rgba(0,200,255,.04)}
+.notif-item.unread:hover{background:rgba(0,200,255,.07)}
+.notif-icon-wrap{font-size:1.4rem;flex-shrink:0;margin-top:2px}
+.notif-content{flex:1;min-width:0}
+.notif-title{font-weight:700;font-size:.9rem;margin-bottom:.2rem;line-height:1.3}
+.notif-text{font-size:.82rem;color:var(--text-dim);line-height:1.5;margin-bottom:.3rem}
+.notif-time{font-size:.7rem;color:var(--text-dim);opacity:.7}
+.notif-unread-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:6px;box-shadow:0 0 6px var(--accent)}
+.notif-count-badge{position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:50%;background:var(--accent);color:var(--bg);font-family:'Orbitron',monospace;font-size:.52rem;font-weight:700;display:none;align-items:center;justify-content:center}
+</style>
+</head>
+<body data-theme="blue">
+
+<div id="authGuard"><div class="guard-logo">M</div><div class="guard-text">Verifying access...</div></div>
+
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">
+    <img src="logo.png" alt="M" onerror="this.style.display='none';document.getElementById('nlFb').style.display='flex'">
+    <div id="nlFb" class="nav-logo-fallback" style="display:none">M</div>
+  </a>
+  <div class="nav-right">
+    <div class="theme-switcher">
+      <button class="theme-btn" id="themeBtn">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+      </button>
+      <div class="theme-dropdown" id="themeDropdown">
+        <div class="theme-title">Choose Theme</div>
+        <div class="theme-grid">
+          <button class="theme-option active" data-theme="blue"   style="background:#00c8ff"></button>
+          <button class="theme-option"        data-theme="red"    style="background:#ff3366"></button>
+          <button class="theme-option"        data-theme="orange" style="background:#ff6b35"></button>
+          <button class="theme-option"        data-theme="yellow" style="background:#ffd700"></button>
+          <button class="theme-option"        data-theme="green"  style="background:#00ff88"></button>
+          <button class="theme-option"        data-theme="purple" style="background:#8b5cf6"></button>
+          <button class="theme-option"        data-theme="pink"   style="background:#ec4899"></button>
+          <button class="theme-option"        data-theme="brown"  style="background:#c2855a"></button>
+          <button class="theme-option"        data-theme="dark"   style="background:#888"></button>
+        </div>
+      </div>
+    </div>
+    <button class="icon-btn" id="notifBtn" title="Notifications" onclick="toggleNotifPanel()" style="position:relative">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span id="notifBadge" style="display:none;position:absolute;top:4px;right:4px;background:#ff3366;color:#fff;font-family:'Orbitron',monospace;font-size:.5rem;font-weight:700;min-width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center;border:2px solid var(--bg);padding:0 2px">0</span>
+    </button>
+    <div class="user-chip" onclick="showPanel('profile')" id="userChip">
+      <div class="user-avatar" id="navAvatar">U</div>
+      <span class="user-name" id="navName">Loading...</span>
+    </div>
+    <!-- NOTIFICATION PANEL -->
+    <div id="notifPanel" style="position:fixed;top:68px;right:1.5rem;width:360px;max-height:520px;background:var(--bg2);border:1px solid var(--border);border-radius:18px;z-index:9998;display:none;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6);overflow:hidden;animation:dropIn .2s ease">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.4rem;border-bottom:1px solid var(--border)">
+        <div style="font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700">Notifications</div>
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <button onclick="markAllRead()" style="font-size:.68rem;color:var(--accent);background:none;border:none;cursor:pointer;font-family:'Orbitron',monospace">Mark all read</button>
+          <button onclick="closeNotifPanel()" style="background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:50%;width:28px;height:28px;color:var(--text-dim);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center">×</button>
+        </div>
+      </div>
+      <div id="notifList" style="overflow-y:auto;flex:1;padding:.75rem"></div>
+    </div>
+
+    <!-- Admin link (hidden until check) -->
+    <a href="admin.html" id="adminLink" style="display:none;padding:6px 14px;background:rgba(255,51,102,.12);border:1px solid rgba(255,51,102,.3);border-radius:8px;font-family:'Orbitron',monospace;font-size:.58rem;font-weight:700;color:#ff3366;letter-spacing:1px">ADMIN</a>
+  </div>
+</nav>
+
+<!-- NOTIFICATION PANEL -->
+<div id="notifPanel" class="notif-panel">
+  <div class="notif-header">
+    <span>Notifications</span>
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <button id="markAllReadBtn" onclick="markAllRead(CU?.uid)" style="font-size:.72rem;color:var(--accent);background:none;border:none;cursor:pointer;font-family:Rajdhani,sans-serif">Mark all read</button>
+      <button onclick="document.getElementById('notifPanel').classList.remove('open')" style="background:none;border:none;color:var(--text-dim);font-size:1.2rem;cursor:pointer;line-height:1">✕</button>
+    </div>
+  </div>
+  <div class="notif-body">
+    <div style="text-align:center;padding:2.5rem 1rem;color:var(--text-dim)">
+      <div style="font-size:2.5rem;margin-bottom:.75rem;opacity:.4">🔔</div>
+      <div style="font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:2px">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<div class="dash-wrap">
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sb-section">Main</div>
+    <div class="sb-link active" onclick="showPanel('overview',this)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Overview
+    </div>
+    <div class="sb-link" onclick="showPanel('courses',this)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      My Courses
+      <span class="sb-badge" id="courseCountBadge">0</span>
+    </div>
+    <div class="sb-link" onclick="showPanel('progress',this)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Progress
+    </div>
+    <div class="sb-link" onclick="showPanel('leaderboard',this)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Leaderboard
+    </div>
+    <div class="sb-section">Platform</div>
+    <div class="sb-link" onclick="showPanel('liveSessions',this)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+      Live Sessions
+      <span class="sb-badge" id="liveCountBadge" style="background:#ff3232;display:none">●</span>
+    </div>
+    <div class="sb-link" onclick="showPanel('ebooks',this)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      E-books
+    </div>
+    <div class="sb-link" onclick="showPanel('competitions',this)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Competitions
+    </div>
+    <div class="sb-link" onclick="window.location.href='community.html'">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Community
+    </div>
+    <div class="sb-section">Account</div>
+    <div class="sb-link" onclick="showPanel('profile',this)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </div>
+    <div class="sb-section"></div>
+    <div class="sb-link" onclick="window.location.href='courses.html'">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Browse Courses
+    </div>
+    <div class="sb-signout">
+      <div class="sb-link" onclick="signOut()" style="color:#ff3366">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main id="main">
+
+    <!-- OVERVIEW -->
+    <div class="page-panel active" id="panel-overview">
+      <div class="page-header-row">
+        <div class="page-header-left">
+          <div class="page-tag">Dashboard</div>
+          <h1 class="page-title" id="welcomeMsg">Hello 👋</h1>
+          <p class="page-sub" style="margin-bottom:0">Your learning journey at a glance.</p>
+        </div>
+        <span id="planBadge" class="plan-chip plan-free" style="margin-top:.5rem">Free Plan</span>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-value" id="st-courses">0</div><div class="stat-label">Courses Owned</div><div class="stat-delta" id="st-courses-sub"></div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="st-lessons">0</div><div class="stat-label">Lessons Done</div></div>
+        <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-value" id="st-xp">0</div><div class="stat-label">XP Earned</div></div>
+        <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value" id="st-streak">—</div><div class="stat-label">Day Streak</div></div>
+      </div>
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="card-head"><span class="card-title">My Courses</span><span class="card-link" onclick="showPanel('courses',null)">View all →</span></div>
+          <div id="overviewCourseList"><div style="color:var(--text-dim);font-size:.85rem;text-align:center;padding:2rem">Loading your courses...</div></div>
+        </div>
+        <div class="dash-card">
+          <div class="card-head"><span class="card-title">Recent Activity</span></div>
+          <div id="activityFeed"><div style="color:var(--text-dim);font-size:.85rem;text-align:center;padding:2rem">Loading activity...</div></div>
+        </div>
+        <div class="dash-card wide">
+          <div class="card-head"><span class="card-title">Upcoming Live Sessions</span><span class="card-link" onclick="showPanel('liveSessions',null)">View all →</span></div>
+          <div id="upcomingSessionsList"><div style="color:var(--text-dim);font-size:.85rem;text-align:center;padding:1.5rem">Loading sessions...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MY COURSES -->
+    <div class="page-panel" id="panel-courses">
+      <div class="page-tag">Learning</div>
+      <h1 class="page-title">My <span>Courses</span></h1>
+      <p class="page-sub">Courses you've purchased. Each valid for 1 year.</p>
+      <div id="myCourseGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem"></div>
+      <div id="noCoursesMsg" style="display:none;text-align:center;padding:4rem;color:var(--text-dim)">
+        <div style="font-size:3rem;margin-bottom:1rem">📚</div>
+        <div style="font-family:'Orbitron',monospace;font-size:.85rem;margin-bottom:1rem">No courses yet</div>
+        <a href="courses.html" style="color:var(--accent);font-size:.9rem;text-decoration:underline">Browse & purchase courses →</a>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="page-panel" id="panel-progress">
+      <div class="page-tag">Analytics</div>
+      <h1 class="page-title">Your <span>Progress</span></h1>
+      <p class="page-sub">Detailed breakdown across all your courses.</p>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="pr-lessons">0</div><div class="stat-label">Lessons Done</div></div>
+        <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-value" id="pr-quiz">—</div><div class="stat-label">Quiz Average</div></div>
+        <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-value" id="pr-xp">0</div><div class="stat-label">XP Earned</div></div>
+        <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-value" id="pr-level">L1</div><div class="stat-label">Level</div></div>
+      </div>
+      <div class="dash-card"><div class="card-head"><span class="card-title">Course Progress</span></div><div id="progressBars"><div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">Loading...</div></div></div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div class="page-panel" id="panel-leaderboard">
+      <div class="page-tag">Rankings</div>
+      <h1 class="page-title">Weekly <span>Leaderboard</span></h1>
+      <p class="page-sub">Resets every Monday midnight. Earn XP by completing lessons and quizzes.</p>
+      <div class="dash-grid">
+        <div class="dash-card" style="grid-column:1/-1">
+          <div class="card-head"><span class="card-title">This Week's Top Learners</span><span id="weekLabel" style="font-size:.75rem;color:var(--text-dim)"></span></div>
+          <div id="leaderboardList"><div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">Loading leaderboard...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE SESSIONS -->
+    <div class="page-panel" id="panel-liveSessions">
+      <div class="page-tag">Schedule</div>
+      <h1 class="page-title">Live <span>Sessions</span></h1>
+      <p class="page-sub">2 live classes per week per course. Links activated 10 minutes before start.</p>
+      <div id="liveSessionsList"><div style="color:var(--text-dim);text-align:center;padding:3rem;font-size:.85rem">Loading sessions...</div></div>
+    </div>
+
+    <!-- EBOOKS -->
+    <div class="page-panel" id="panel-ebooks">
+      <div class="page-tag">Library</div>
+      <h1 class="page-title">E-<span>Books</span></h1>
+      <p class="page-sub" id="ebookSub">Download free with a Basic+ subscription.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.5rem" id="ebookGrid"></div>
+    </div>
+
+    <!-- COMPETITIONS -->
+    <div class="page-panel" id="panel-competitions">
+      <div class="page-tag">Challenges</div>
+      <h1 class="page-title">Weekly <span>Competitions</span></h1>
+      <p class="page-sub">Compete, win XP, climb the leaderboard. Pro+ subscription required to participate.</p>
+      <div id="compList"><div style="color:var(--text-dim);text-align:center;padding:3rem;font-size:.85rem">Loading competitions...</div></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="page-panel" id="panel-profile">
+      <div class="page-tag">Account</div>
+      <h1 class="page-title">My <span>Profile</span></h1>
+      <div class="profile-hero">
+        <div class="profile-avatar-lg" id="profileAvBig">U</div>
+        <div>
+          <div class="profile-name" id="profileNameBig">Loading...</div>
+          <div class="profile-email" id="profileEmailBig"></div>
+          <div class="profile-stats">
+            <div><div class="pstat-val" id="pst-courses">0</div><div class="pstat-label">Courses</div></div>
+            <div><div class="pstat-val" id="pst-lessons">0</div><div class="pstat-label">Lessons</div></div>
+            <div><div class="pstat-val" id="pst-xp">0</div><div class="pstat-label">XP</div></div>
+          </div>
+        </div>
+        <div style="margin-left:auto">
+          <label style="cursor:pointer">
+            <input type="file" id="avatarUpload" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
+            <span class="btn-save" onclick="document.getElementById('avatarUpload').click()">Change Photo</span>
+          </label>
+        </div>
+      </div>
+      <div class="dash-card">
+        <div class="card-head"><span class="card-title">Personal Information</span></div>
+        <div class="profile-grid" style="margin-bottom:1.5rem">
+          <div class="p-field"><label>Display Name</label><input type="text" id="pName" placeholder="Your name"></div>
+          <div class="p-field"><label>Email (read-only)</label><input type="email" id="pEmail" readonly></div>
+          <div class="p-field"><label>Mobile Number <span style="color:var(--accent)">*required for purchases</span></label><input type="tel" id="pPhone" placeholder="+91 XXXXX XXXXX"></div>
+          <div class="p-field"><label>Country</label><input type="text" id="pCountry" placeholder="India"></div>
+          <div class="p-field"><label>State</label><input type="text" id="pState" placeholder="Maharashtra"></div>
+          <div class="p-field"><label>PIN Code</label><input type="text" id="pPin" placeholder="422001" maxlength="6"></div>
+        </div>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap">
+          <button class="btn-save" onclick="saveProfile()">Save Changes</button>
+          <button class="btn-danger" onclick="signOut()">Sign Out</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="notifications.js"></script>
+
+<script>
+let CU = null, userPlan = 'free', ownedCourses = new Set(), userXP = 0;
+
+// ── AUTH ─────────────────────────────────────────────────────────
+auth.onAuthStateChanged(async user => {
+  if (!user) { window.location.href = 'index.html'; return; }
+  CU = user;
+  document.getElementById('authGuard').style.display = 'none';
+
+  const name = user.displayName || user.email.split('@')[0];
+  document.getElementById('navName').textContent = name;
+  document.getElementById('navAvatar').innerHTML = user.photoURL
+    ? `<img src="${user.photoURL}" alt="">` : name[0].toUpperCase();
+  document.getElementById('welcomeMsg').textContent = getGreeting(name) + ' 👋';
+
+  // Load user doc
+  const userDoc = await db.collection('users').doc(user.uid).get();
+  const ud = userDoc.data() || {};
+  if (ud.preferences?.theme) document.body.dataset.theme = ud.preferences.theme;
+  userXP = ud.xp || 0;
+
+  // Update profile panel
+  document.getElementById('profileNameBig').textContent = name;
+  document.getElementById('profileEmailBig').textContent = user.email;
+  document.getElementById('profileAvBig').innerHTML = user.photoURL
+    ? `<img src="${user.photoURL}" alt="">` : name[0].toUpperCase();
+  document.getElementById('pName').value    = name;
+  document.getElementById('pEmail').value   = user.email;
+  document.getElementById('pPhone').value   = ud.phone   || '';
+  document.getElementById('pCountry').value = ud.country || '';
+  document.getElementById('pState').value   = ud.state   || '';
+  document.getElementById('pPin').value     = ud.pin     || '';
+
+  // Admin check
+  const adminOk = await isAdmin(user);
+  if (adminOk || ud.roles?.admin) document.getElementById('adminLink').style.display = 'block';
+
+  // Plan
+  userPlan = await getUserPlan(user.uid);
+  setPlanBadge(userPlan);
+
+  // Owned courses
+  ownedCourses = await getUserCourses(user.uid);
+  document.getElementById('courseCountBadge').textContent = ownedCourses.size;
+  document.getElementById('st-courses').textContent = ownedCourses.size;
+
+  // Presence
+  updatePresence(user.uid);
+  loadNotifications();
+  // Start real-time notifications
+  initNotifications(user.uid, userPlan, ownedCourses);
+
+  // Last seen
+  db.collection('users').doc(user.uid).set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+
+  // Load all panels
+  loadStats(user.uid);
+  loadOverviewCourses();
+  loadActivityFeed(user.uid);
+  loadAllCoursesPanel();
+  loadProgressPanel(user.uid);
+  loadLiveSessionsPanel();
+  loadLeaderboard();
+  loadEbooks();
+  loadCompetitions();
+});
+
+// ── PLAN BADGE ────────────────────────────────────────────────────
+function setPlanBadge(plan) {
+  const el = document.getElementById('planBadge');
+  const map = { free:'plan-free Free Plan', basic:'plan-basic Basic Plan', pro:'plan-pro Pro Plan', premium:'plan-premium Premium Plan' };
+  const [cls, label] = (map[plan]||'plan-free Free Plan').split(' ');
+  el.className = `plan-chip ${cls}`; el.textContent = label+' Plan';
+}
+
+// ── STATS ─────────────────────────────────────────────────────────
+async function loadStats(uid) {
+  try {
+    let totalLessons = 0;
+    for (const cid of ownedCourses) {
+      const snap = await db.collection('progress').doc(uid).collection('courses').doc(cid).collection('lessons').where('completed','==',true).get();
+      totalLessons += snap.size;
+    }
+    document.getElementById('st-lessons').textContent = totalLessons;
+    document.getElementById('pr-lessons').textContent = totalLessons;
+    document.getElementById('pst-lessons').textContent = totalLessons;
+
+    const xpEl = document.getElementById('st-xp');
+    const prXp = document.getElementById('pr-xp');
+    const pstXp = document.getElementById('pst-xp');
+    if (xpEl) xpEl.textContent = userXP;
+    if (prXp) prXp.textContent = userXP;
+    if (pstXp) pstXp.textContent = userXP;
+
+    const level = Math.floor(userXP / 500) + 1;
+    const lvlEl = document.getElementById('pr-level');
+    if (lvlEl) lvlEl.textContent = 'L' + level;
+    document.getElementById('pst-courses').textContent = ownedCourses.size;
+    document.getElementById('pst-xp').textContent = userXP;
+  } catch(e) { console.error(e); }
+}
+
+// ── OVERVIEW COURSES ──────────────────────────────────────────────
+async function loadOverviewCourses() {
+  const container = document.getElementById('overviewCourseList');
+  if (!ownedCourses.size) {
+    container.innerHTML = `<div style="text-align:center;padding:1.5rem;color:var(--text-dim);font-size:.85rem">
+      No courses yet. <a href="courses.html" style="color:var(--accent)">Browse courses →</a></div>`;
+    return;
+  }
+  const items = [];
+  for (const cid of [...ownedCourses].slice(0,4)) {
+    const c = COURSES[cid]; if (!c) continue;
+    const pct = await getCourseProgress(CU.uid, cid);
+    items.push(`<div class="course-item" onclick="window.location.href='course-page.html?id=${cid}'">
+      <div class="ci-icon">${c.icon}</div>
+      <div class="ci-info">
+        <div class="ci-name">${c.title}</div>
+        <div class="ci-meta">${pct}% complete</div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+      </div>
+      <span class="ci-pct">${pct}%</span>
+    </div>`);
+  }
+  container.innerHTML = items.join('') || `<div style="color:var(--text-dim);text-align:center;padding:1.5rem;font-size:.85rem">No progress yet — start learning!</div>`;
+}
+
+// ── MY COURSES PANEL ──────────────────────────────────────────────
+async function loadAllCoursesPanel() {
+  const grid = document.getElementById('myCourseGrid');
+  const none = document.getElementById('noCoursesMsg');
+  if (!ownedCourses.size) { grid.style.display='none'; none.style.display='block'; return; }
+  grid.style.display='grid'; none.style.display='none';
+  const cards = [];
+  for (const cid of ownedCourses) {
+    const c = COURSES[cid]; if (!c) continue;
+    const pct = await getCourseProgress(CU.uid, cid);
+    const total = c.modules.reduce((a,m)=>a+m.lessons.length,0);
+    cards.push(`<div class="dash-card" style="cursor:pointer" onclick="window.location.href='course-page.html?id=${cid}'">
+      <div style="font-size:2.8rem;margin-bottom:.8rem">${c.icon}</div>
+      <div style="font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:2px;color:var(--accent);margin-bottom:.4rem">${c.level.toUpperCase()}</div>
+      <div style="font-family:'Orbitron',monospace;font-size:.95rem;font-weight:700;margin-bottom:.5rem">${c.title}</div>
+      <div style="color:var(--text-dim);font-size:.82rem;margin-bottom:1rem">${total} lessons · ${c.weeks} weeks</div>
+      <div class="prog-bar" style="margin-bottom:.4rem"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:.78rem">
+        <span style="color:var(--text-dim)">${pct}% complete</span>
+        <span style="color:var(--accent);font-family:'Orbitron',monospace;font-size:.65rem">Continue →</span>
+      </div>
+    </div>`);
+  }
+  grid.innerHTML = cards.join('');
+}
+
+// ── ACTIVITY FEED ─────────────────────────────────────────────────
+async function loadActivityFeed(uid) {
+  const el = document.getElementById('activityFeed');
+  try {
+    const activities = [];
+    for (const cid of [...ownedCourses].slice(0,3)) {
+      const snap = await db.collection('progress').doc(uid).collection('courses').doc(cid)
+        .collection('lessons').orderBy('completedAt','desc').limit(3).get();
+      const c = COURSES[cid];
+      snap.forEach(doc => {
+        const d = doc.data();
+        const when = d.completedAt?.toDate();
+        activities.push({ text:`Completed a lesson in <strong>${c?.title||cid}</strong>`, when, active:true });
+      });
+    }
+    activities.sort((a,b) => (b.when||0) - (a.when||0));
+    if (!activities.length) {
+      el.innerHTML = `<div style="color:var(--text-dim);font-size:.85rem;text-align:center;padding:1.5rem">Start learning to see activity here!</div>`;
+      return;
+    }
+    el.innerHTML = activities.slice(0,6).map(a => `<div class="activity-item">
+      <div class="act-dot ${a.active?'':'dim'}"></div>
+      <div class="act-text">${a.text}</div>
+      <div class="act-time">${a.when ? relativeTime(a.when) : ''}</div>
+    </div>`).join('');
+  } catch(e) { el.innerHTML = `<div style="color:var(--text-dim);text-align:center;padding:1.5rem;font-size:.85rem">Unable to load</div>`; }
+}
+
+function relativeTime(date) {
+  const diff = (Date.now() - date) / 1000;
+  if (diff < 60)   return 'just now';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return Math.floor(diff/86400) + 'd ago';
+}
+
+// ── PROGRESS PANEL ────────────────────────────────────────────────
+async function loadProgressPanel(uid) {
+  const el = document.getElementById('progressBars');
+  if (!ownedCourses.size) { el.innerHTML = `<div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">Buy a course to track progress.</div>`; return; }
+  const bars = [];
+  for (const cid of ownedCourses) {
+    const c = COURSES[cid]; if (!c) continue;
+    const pct = await getCourseProgress(uid, cid);
+    bars.push(`<div style="margin-bottom:1.5rem">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-weight:700">${c.icon} ${c.title}</span>
+        <span style="color:var(--accent);font-family:'Orbitron',monospace;font-size:.72rem">${pct}%</span>
+      </div>
+      <div class="prog-bar" style="height:10px"><div class="prog-fill" style="width:${pct}%"></div></div>
+    </div>`);
+  }
+  el.innerHTML = bars.join('');
+}
+
+// ── LIVE SESSIONS ─────────────────────────────────────────────────
+async function loadLiveSessionsPanel() {
+  const el1 = document.getElementById('liveSessionsList');
+  const el2 = document.getElementById('upcomingSessionsList');
+  try {
+    const snap = await db.collection('liveSessions').orderBy('datetime').limit(20).get();
+    const now = new Date();
+    if (snap.empty) {
+      const msg = `<div style="color:var(--text-dim);font-size:.85rem;text-align:center;padding:2rem">No sessions scheduled yet. Check back soon!</div>`;
+      el1.innerHTML = msg; el2.innerHTML = msg; return;
+    }
+    let liveCount = 0;
+    const cards = snap.docs.map(doc => {
+      const d = doc.data();
+      const dt = d.datetime?.toDate();
+      const isLive = dt && (dt - now) < 15*60*1000 && (now - dt) < 2*60*60*1000;
+      const past   = dt && dt < now && !isLive;
+      if (isLive) liveCount++;
+      const courseObj = COURSES[d.courseId];
+      if (!ownedCourses.has(d.courseId)) return ''; // only show for owned courses
+      return `<div class="live-session-card" style="opacity:${past?.5:1}" onclick="${isLive?`window.open('${d.link}','_blank')`:''}">
+        <div class="live-dot" style="background:${isLive?'#ff3232':past?'#7a9bb5':'#ffd700'};box-shadow:${isLive?'0 0 10px #ff3232':'none'}"></div>
+        <div class="live-info">
+          <div class="live-course">${courseObj?.icon||''} ${d.courseName}</div>
+          <div class="live-topic">${d.topic}</div>
+          <div class="live-time">${dt?dt.toLocaleString('en-IN',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'TBD'} · ${d.duration||60} min</div>
+        </div>
+        ${isLive ? `<button class="live-join-btn" onclick="window.open('${d.link}','_blank')">JOIN NOW</button>` : past ? `<span style="font-size:.72rem;color:var(--text-dim)">Ended</span>` : `<span style="font-family:'Orbitron',monospace;font-size:.62rem;color:#ffd700">UPCOMING</span>`}
+      </div>`;
+    }).filter(Boolean);
+
+    if (liveCount > 0) {
+      const badge = document.getElementById('liveCountBadge');
+      if (badge) { badge.style.display='inline'; }
+    }
+    const html = cards.length ? cards.join('') : `<div style="color:var(--text-dim);font-size:.85rem;text-align:center;padding:2rem">No sessions for your courses yet.</div>`;
+    el1.innerHTML = html;
+    el2.innerHTML = cards.slice(0,3).join('') || `<div style="color:var(--text-dim);font-size:.85rem;text-align:center;padding:1.5rem">No upcoming sessions.</div>`;
+  } catch(e) { console.error(e); el1.innerHTML = `<div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">Unable to load sessions.</div>`; }
+}
+
+// ── LEADERBOARD ───────────────────────────────────────────────────
+function loadLeaderboard() {
+  if (!rtdb) { document.getElementById('leaderboardList').innerHTML = `<div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">Realtime Database not configured.</div>`; return; }
+  const week = getWeekKey();
+  document.getElementById('weekLabel').textContent = week;
+  rtdb.ref(`leaderboard/${week}`).orderByChild('xp').limitToLast(20).on('value', snap => {
+    const el = document.getElementById('leaderboardList');
+    if (!snap.exists()) { el.innerHTML = `<div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">Be the first to earn XP this week!</div>`; return; }
+    const entries = [];
+    snap.forEach(child => entries.push({ uid:child.key, ...child.val() }));
+    entries.reverse();
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = entries.map((e,i) => {
+      const isMe = e.uid === CU?.uid;
+      return `<div class="lb-row" style="${isMe?'border-color:var(--accent);background:rgba(0,200,255,.06)':''}">
+        <div class="lb-rank ${i<3?'top':''}">${medals[i]||i+1}</div>
+        <div class="lb-avatar">${(e.displayName||'?')[0].toUpperCase()}</div>
+        <div class="lb-name">${e.displayName||'Anonymous'}${isMe?' <span style="font-family:Orbitron,monospace;font-size:.55rem;color:var(--accent)">(you)</span>':''}</div>
+        <div class="lb-pts">${e.xp||0} XP</div>
+      </div>`;
+    }).join('');
+  });
+}
+
+// ── EBOOKS ────────────────────────────────────────────────────────
+async function loadEbooks() {
+  const canDownload = hasPlanFeature(userPlan, 'ebookDownload');
+  const sub  = document.getElementById('ebookSub');
+  const grid = document.getElementById('ebookGrid');
+
+  if (sub) sub.textContent = canDownload
+    ? 'Your Basic+ subscription includes all ebooks — click any to download.'
+    : 'Upgrade to Basic or above to unlock all ebooks.';
+
+  grid.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem;grid-column:1/-1">Loading ebooks...</div>';
+
+  try {
+    const snap = await db.collection('ebooks')
+      .where('published','==',true)
+      .orderBy('createdAt','desc')
+      .get();
+
+    if (snap.empty) {
+      grid.innerHTML = `<div style="color:var(--text-dim);text-align:center;padding:3rem 1rem;grid-column:1/-1">
+        <div style="font-size:3rem;margin-bottom:1rem;opacity:.35">📚</div>
+        <div style="font-family:'Orbitron',monospace;font-size:.72rem;letter-spacing:2px;margin-bottom:.5rem">No Ebooks Yet</div>
+        <div style="font-size:.85rem">Admin will add ebooks soon — check back shortly!</div>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = snap.docs.map(doc => {
+      const e   = doc.data();
+      const isFree = e.free === true;
+      const canGet  = canDownload || isFree;
+      return `<div class="ebook-card">
+        <span class="ebook-icon">${e.icon||'📖'}</span>
+        <div class="ebook-title">${e.title}</div>
+        <div class="ebook-pages">${e.pages?e.pages+' pages':''}${e.course?' · '+e.course:''}${isFree?' · <span style="color:#00ff88;font-size:.72rem">Free</span>':''}</div>
+        <button class="ebook-btn" onclick="${canGet?`window.open('${e.fileUrl}','_blank')`:`window.location.href='index.html#pricing'`}">
+          ${canGet?'⬇ Download':'🔒 Upgrade to Download'}
+        </button>
+        ${!canGet?'<div class="ebook-lock"><div class="ebook-lock-icon">🔒</div><div class="ebook-lock-text">Basic Plan Required</div></div>':''}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem;grid-column:1/-1">Could not load ebooks — '+e.message+'</div>';
+  }
+}
+
+
+// ── COMPETITIONS ──────────────────────────────────────────────────
+function loadCompetitions() {
+  const canCompete = hasPlanFeature(userPlan,'competitions');
+  const comps = [
+    { icon:'⚡', title:'Python Speed Challenge', desc:'Solve 5 algorithmic problems in 30 minutes. Top 3 win bonus XP.', deadline:'Ends Sunday', reward:'500 XP' },
+    { icon:'🌐', title:'Web UI Battle', desc:'Build the most creative landing page in 1 hour. Community votes.', deadline:'Ends Saturday', reward:'750 XP + Badge' },
+    { icon:'🤖', title:'ML Model Accuracy Contest', desc:'Who can achieve the highest accuracy on a mystery dataset?', deadline:'Ends Friday', reward:'1000 XP + Certificate' },
+  ];
+  document.getElementById('compList').innerHTML = comps.map(c => `
+    <div class="comp-card" onclick="${canCompete?`toast('Competition entry submitted!','success')`:`"window.location.href='index.html#pricing'"`}">
+      <div class="comp-header">
+        <span class="comp-icon">${c.icon}</span>
+        <div>
+          <div class="comp-title">${c.title}</div>
+          ${!canCompete?`<span style="font-family:'Orbitron',monospace;font-size:.55rem;color:var(--text-dim);background:rgba(255,255,255,.05);padding:2px 8px;border-radius:50px;border:1px solid var(--border)">Pro+ Required</span>`:''}
+        </div>
+      </div>
+      <div class="comp-desc">${c.desc}</div>
+      <div class="comp-footer">
+        <span class="comp-deadline">⏱ ${c.deadline}</span>
+        <span style="color:var(--accent);font-family:'Orbitron',monospace;font-size:.68rem">🏆 ${c.reward}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ── PROFILE ───────────────────────────────────────────────────────
+async function saveProfile() {
+  if (!CU) return;
+  const name = document.getElementById('pName').value.trim();
+  const data = {
+    displayName: name,
+    phone:   document.getElementById('pPhone').value.trim(),
+    country: document.getElementById('pCountry').value.trim(),
+    state:   document.getElementById('pState').value.trim(),
+    pin:     document.getElementById('pPin').value.trim(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  };
+  try {
+    await CU.updateProfile({ displayName: name });
+    await db.collection('users').doc(CU.uid).set(data, { merge:true });
+    document.getElementById('navName').textContent = name;
+    document.getElementById('profileNameBig').textContent = name;
+    document.getElementById('welcomeMsg').textContent = getGreeting(name) + ' 👋';
+    toast('Profile saved!','success');
+  } catch(e) { toast('Error saving: '+e.message,'error'); }
+}
+
+async function uploadAvatar(input) {
+  if (!input.files?.[0] || !CU) return;
+  toast('Uploading photo...','info');
+  try {
+    const ref  = storage.ref(`users/${CU.uid}/avatar`);
+    await ref.put(input.files[0]);
+    const url  = await ref.getDownloadURL();
+    await CU.updateProfile({ photoURL: url });
+    await db.collection('users').doc(CU.uid).set({ photoURL: url }, { merge:true });
+    const img = `<img src="${url}" alt="">`;
+    document.getElementById('profileAvBig').innerHTML = img;
+    document.getElementById('navAvatar').innerHTML    = img;
+    toast('Photo updated!','success');
+  } catch(e) { toast('Upload failed','error'); }
+}
+
+// ── PANEL NAV ─────────────────────────────────────────────────────
+function showPanel(name, el) {
+  document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
+  const panel = document.getElementById('panel-'+name);
+  if (panel) panel.classList.add('active');
+  el?.classList.add('active');
+}
+
+// ── SIGN OUT ──────────────────────────────────────────────────────
+function signOut() { auth.signOut().then(() => window.location.href='index.html'); }
+
+// ── THEME ─────────────────────────────────────────────────────────
+(function(){
+  const saved = localStorage.getItem('mi_theme')||'blue';
+  document.body.dataset.theme = saved;
+  document.querySelectorAll('.theme-option').forEach(b => b.classList.toggle('active', b.dataset.theme===saved));
+})();
+document.getElementById('themeBtn').addEventListener('click', e => {
+  e.stopPropagation();
+  document.getElementById('themeDropdown').classList.toggle('open');
+});
+document.querySelectorAll('.theme-option').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const t = btn.dataset.theme;
+    document.body.dataset.theme = t;
+    localStorage.setItem('mi_theme', t);
+    document.querySelectorAll('.theme-option').forEach(b => b.classList.toggle('active', b===btn));
+    document.getElementById('themeDropdown').classList.remove('open');
+    if (CU) db.collection('users').doc(CU.uid).set({'preferences.theme':t},{merge:true}).catch(()=>{});
+  });
+});
+document.addEventListener('click', () => document.getElementById('themeDropdown').classList.remove('open'));
+
+// ── TOAST ─────────────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const colors={info:'var(--accent)',success:'#00ff88',error:'#ff3366',warn:'#ffd700'};
+  const t = document.createElement('div'); t.className='mi-toast';
+  t.style.borderColor=colors[type]||'var(--accent)'; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.transition='opacity .4s';t.style.opacity='0';setTimeout(()=>t.remove(),400)},3500);
+}
+window.showToast = toast;
+
+// ── NOTIFICATIONS ────────────────────────────────────────────────
+let _allNotifs = [], _readIds = new Set();
+const NOTIF_READ_KEY = 'mi_read_notifs';
+
+function toggleNotifPanel() {
+  const panel = document.getElementById('notifPanel');
+  const isOpen = panel.style.display === 'flex';
+  panel.style.display = isOpen ? 'none' : 'flex';
+  if (!isOpen) renderNotifPanel();
+}
+
+function closeNotifPanel() {
+  document.getElementById('notifPanel').style.display = 'none';
+}
+
+// Close panel when clicking outside
+document.addEventListener('click', e => {
+  const panel = document.getElementById('notifPanel');
+  const btn   = document.getElementById('notifBtn');
+  if (panel && btn && !panel.contains(e.target) && !btn.contains(e.target)) {
+    panel.style.display = 'none';
+  }
+});
+
+async function loadNotifications() {
+  // Load read IDs from localStorage
+  try { _readIds = new Set(JSON.parse(localStorage.getItem(NOTIF_READ_KEY)||'[]')); } catch {}
+
+  // Listen to Realtime DB for instant delivery
+  if (rtdb) {
+    rtdb.ref('globalNotifications').orderByChild('sentAt').limitToLast(30).on('value', snap => {
+      _allNotifs = [];
+      if (snap.exists()) {
+        snap.forEach(child => {
+          _allNotifs.unshift({ id: child.key, ...child.val() });
+        });
+      }
+      // Filter by target for this user
+      _allNotifs = _allNotifs.filter(n => isNotifForMe(n));
+      updateNotifBadge();
+      if (document.getElementById('notifPanel').style.display === 'flex') renderNotifPanel();
+    });
+  } else {
+    // Fallback: Firestore polling
+    try {
+      const snap = await db.collection('notifications')
+        .orderBy('sentAt','desc').limit(30).get();
+      _allNotifs = snap.docs
+        .map(d => ({ id:d.id, ...d.data() }))
+        .filter(n => isNotifForMe(n));
+      updateNotifBadge();
+    } catch(e) { console.warn('Notifications:', e.message); }
+  }
+}
+
+function isNotifForMe(n) {
+  const target = n.target || 'all';
+  if (target === 'all') return true;
+  // Plan-based targeting
+  const planRank = { free:0, basic:1, pro:2, premium:3 };
+  const myRank   = planRank[userPlan] || 0;
+  if (target === 'basic'   && myRank >= 1) return true;
+  if (target === 'pro'     && myRank >= 2) return true;
+  if (target === 'premium' && myRank >= 3) return true;
+  // Course-based targeting
+  if (ownedCourses.has(target)) return true;
+  return false;
+}
+
+function updateNotifBadge() {
+  const unread = _allNotifs.filter(n => !_readIds.has(n.id)).length;
+  const badge  = document.getElementById('notifBadge');
+  if (!badge) return;
+  if (unread > 0) {
+    badge.textContent  = unread > 9 ? '9+' : unread;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function renderNotifPanel() {
+  const list = document.getElementById('notifList');
+  if (!list) return;
+  if (!_allNotifs.length) {
+    list.innerHTML = `<div style="text-align:center;padding:2.5rem 1rem;color:var(--text-dim)">
+      <div style="font-size:2.5rem;margin-bottom:.75rem;opacity:.4">🔔</div>
+      <div style="font-family:'Orbitron',monospace;font-size:.7rem;letter-spacing:1px">No notifications yet</div>
+    </div>`;
+    return;
+  }
+  list.innerHTML = _allNotifs.map(n => {
+    const isRead = _readIds.has(n.id);
+    const ts = n.sentAt ? new Date(n.sentAt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'Just now';
+    return `<div onclick="readNotif('${n.id}','${n.link||''}')"
+      style="display:flex;align-items:flex-start;gap:.9rem;padding:.9rem 1rem;border-radius:12px;margin-bottom:.4rem;cursor:pointer;
+             background:${isRead ? 'transparent' : 'rgba(0,200,255,0.05)'};
+             border:1px solid ${isRead ? 'transparent' : 'var(--border)'};
+             transition:all .2s">
+      <div style="font-size:1.6rem;flex-shrink:0;margin-top:2px">${n.icon||'🔔'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;margin-bottom:.25rem;
+                    color:${isRead ? 'var(--text-dim)' : 'var(--text)'}">${n.title}</div>
+        <div style="font-size:.82rem;color:var(--text-dim);line-height:1.5;margin-bottom:.3rem">${n.body}</div>
+        <div style="font-size:.68rem;color:var(--text-dim);opacity:.6;display:flex;align-items:center;gap:.4rem">
+          ${ts}
+          ${!isRead ? '<span style="width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;flex-shrink:0"></span>' : ''}
+          ${n.link ? '<span style="color:var(--accent)">→ View</span>' : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function readNotif(id, link) {
+  _readIds.add(id);
+  localStorage.setItem(NOTIF_READ_KEY, JSON.stringify([..._readIds]));
+  updateNotifBadge();
+  renderNotifPanel();
+  if (link) {
+    if (link.startsWith('http')) window.open(link, '_blank');
+    else window.location.href = link;
+  }
+}
+
+function markAllRead() {
+  _allNotifs.forEach(n => _readIds.add(n.id));
+  localStorage.setItem(NOTIF_READ_KEY, JSON.stringify([..._readIds]));
+  updateNotifBadge();
+  renderNotifPanel();
+}
+
+// Load notifications after auth resolves (called from main auth block)
+// We hook into the existing auth flow — loadNotifications() is called after CU is set
+</script>
+</body>
+</html>

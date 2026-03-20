@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson — Mani Industries</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<!-- Monaco CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/editor/editor.main.css">
+<style>
+.lesson-wrap{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 70px);margin-top:70px;overflow:hidden}
+
+/* SIDEBAR */
+.l-sidebar{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;position:relative}
+.l-sidebar-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg2);z-index:2}
+.l-course-title{font-family:'Orbitron',monospace;font-size:.7rem;font-weight:700;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.l-progress-wrap{margin-top:.5rem}
+.l-prog-bar{height:4px;background:rgba(255,255,255,.06);border-radius:50px;overflow:hidden}
+.l-prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:50px;transition:width 1s ease}
+.l-prog-text{font-size:.65rem;color:var(--text-dim);margin-top:.25rem}
+.mod-title{font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:2px;color:var(--text-dim);padding:.9rem 1.25rem .3rem;text-transform:uppercase}
+.l-lesson-row{display:flex;align-items:center;gap:.65rem;padding:.75rem 1.25rem;cursor:pointer;transition:all .2s;border-left:3px solid transparent;color:var(--text-dim);font-size:.84rem}
+.l-lesson-row:hover{background:rgba(0,200,255,.04);color:var(--text)}
+.l-lesson-row.active{background:rgba(0,200,255,.1);color:var(--accent);border-left-color:var(--accent)}
+.l-lesson-row.done{color:var(--text-dim)}
+.l-check{color:#00ff88;font-size:.72rem;margin-left:auto;flex-shrink:0}
+
+/* MAIN */
+.l-main{overflow-y:auto;display:flex;flex-direction:column;background:var(--bg)}
+.l-content{padding:2rem;flex:1;max-width:900px;width:100%}
+.l-breadcrumb{font-size:.78rem;color:var(--text-dim);margin-bottom:.75rem}
+.l-breadcrumb a{color:var(--accent);cursor:pointer;text-decoration:none}
+.l-breadcrumb a:hover{text-decoration:underline}
+.l-title{font-family:'Orbitron',monospace;font-size:1.35rem;font-weight:800;margin-bottom:.5rem}
+.l-meta-row{display:flex;gap:1rem;font-size:.8rem;color:var(--text-dim);margin-bottom:1.5rem;flex-wrap:wrap}
+.l-meta-pill{display:flex;align-items:center;gap:.35rem}
+
+/* VIDEO */
+.video-box{background:var(--bg3);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:1.5rem;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;position:relative}
+.video-placeholder{text-align:center;padding:2rem}
+.vid-icon{font-size:4rem;margin-bottom:1rem}
+.vid-placeholder-text{color:var(--text-dim);font-size:.88rem;margin-bottom:1.2rem}
+.vid-url-input{padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;width:300px;max-width:100%;outline:none;transition:border .3s}
+.vid-url-input:focus{border-color:var(--accent)}
+.vid-note{font-size:.72rem;color:var(--text-dim);margin-top:.5rem;opacity:.7}
+#videoFrame{display:none;width:100%;height:100%;border:none;position:absolute;inset:0}
+
+/* CODE EDITOR */
+.editor-wrap{border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:1.5rem}
+.editor-toolbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);gap:.75rem;flex-wrap:wrap}
+.editor-lang{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Orbitron',monospace;font-size:.62rem;padding:5px 10px;cursor:pointer;outline:none}
+.editor-btns{display:flex;gap:.5rem;align-items:center}
+.run-btn{padding:7px 20px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:1px;border-radius:6px;transition:all .25s}
+.run-btn:hover{transform:translateY(-1px);box-shadow:0 4px 15px var(--glow)}
+.tool-btn{padding:6px 12px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text-dim);font-family:'Orbitron',monospace;font-size:.6rem;transition:all .2s}
+.tool-btn:hover{color:var(--accent);border-color:var(--accent)}
+.runner-status{font-family:'Orbitron',monospace;font-size:.58rem;color:var(--text-dim)}
+#monacoEditor{height:360px}
+.output-label{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:2px;color:var(--text-dim);margin-bottom:.5rem}
+.output-box{background:#050d1a;border:1px solid var(--border);border-radius:10px;padding:1rem;min-height:100px;max-height:260px;overflow-y:auto;margin-bottom:1.5rem;font-family:'Cascadia Code','Courier New',monospace;font-size:.84rem;line-height:1.6;white-space:pre-wrap;word-break:break-all}
+.out-line{padding:0;color:#e8f4ff}
+.out-err{color:#ff6b6b}
+.out-success{color:#00ff88}
+
+/* QUIZ */
+.quiz-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:1.75rem;margin-bottom:1.5rem}
+.quiz-title{font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;margin-bottom:1.2rem;color:var(--accent)}
+.quiz-q{font-weight:700;font-size:1rem;margin-bottom:1rem;line-height:1.5}
+.quiz-options{display:flex;flex-direction:column;gap:.65rem}
+.quiz-opt{display:flex;align-items:center;gap:.75rem;padding:.9rem 1.1rem;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;text-align:left;font-size:.9rem}
+.quiz-opt:hover{border-color:var(--accent);background:rgba(0,200,255,.06)}
+.quiz-opt.selected{border-color:var(--accent);background:rgba(0,200,255,.12);color:var(--accent)}
+.quiz-opt.correct{border-color:#00ff88;background:rgba(0,255,136,.1);color:#00ff88}
+.quiz-opt.wrong{border-color:#ff3366;background:rgba(255,51,102,.1);color:#ff3366}
+.quiz-submit{margin-top:1.25rem;padding:10px 24px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);font-family:'Orbitron',monospace;font-size:.7rem;font-weight:700;border-radius:8px;transition:all .25s}
+.quiz-submit:hover{transform:translateY(-1px);box-shadow:0 4px 15px var(--glow)}
+.quiz-result{margin-top:1rem;padding:.85rem;border-radius:8px;font-weight:700;font-size:.9rem;display:none}
+.quiz-result.correct{background:rgba(0,255,136,.1);color:#00ff88;border:1px solid rgba(0,255,136,.2)}
+.quiz-result.wrong{background:rgba(255,51,102,.1);color:#ff3366;border:1px solid rgba(255,51,102,.2)}
+
+/* NAV BUTTONS */
+.l-nav{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 0;border-top:1px solid var(--border);margin-top:auto}
+.nav-lesson-btn{display:flex;align-items:center;gap:.6rem;padding:10px 20px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;transition:all .25s}
+.nav-lesson-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.nav-lesson-btn:disabled{opacity:.35;cursor:not-allowed}
+.complete-btn{padding:11px 28px;background:linear-gradient(135deg,#00ff88,#00c866);color:#040d1a;font-family:'Orbitron',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;border-radius:10px;transition:all .3s}
+.complete-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,255,136,.35)}
+.complete-btn.done{background:rgba(0,255,136,.15);color:#00ff88;border:1px solid rgba(0,255,136,.3)}
+
+/* SYNC */
+.sync-badge{font-family:'Orbitron',monospace;font-size:.55rem;padding:3px 8px;background:rgba(255,255,255,.04);border-radius:50px;margin-left:auto;transition:color .5s}
+
+/* NAVBAR LESSON */
+#navbar .lesson-nav-title{font-family:'Orbitron',monospace;font-size:.72rem;color:var(--text-dim);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+@media(max-width:900px){.lesson-wrap{grid-template-columns:1fr}.l-sidebar{display:none}}
+</style>
+</head>
+<body data-theme="blue">
+
+<nav id="navbar" style="position:fixed;top:0;left:0;right:0;height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;background:var(--nav-bg);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:1000">
+  <div style="display:flex;align-items:center;gap:1rem">
+    <div style="cursor:pointer" onclick="goBack()">
+      <img src="logo.png" alt="M" width="38" style="object-fit:contain;filter:drop-shadow(0 0 6px var(--accent))" onerror="this.style.display='none'">
+    </div>
+    <button onclick="goBack()" style="display:flex;align-items:center;gap:.5rem;color:var(--text-dim);font-size:.82rem;transition:color .2s;border:1px solid var(--border);border-radius:8px;padding:6px 12px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back
+    </button>
+  </div>
+  <span class="lesson-nav-title" id="lessonNavTitle">Loading...</span>
+  <div style="display:flex;align-items:center;gap:.75rem">
+    <span class="sync-badge" id="syncBadge" style="color:var(--text-dim)">● Syncing</span>
+  </div>
+</nav>
+
+<div class="lesson-wrap">
+  <!-- LESSON SIDEBAR -->
+  <aside class="l-sidebar">
+    <div class="l-sidebar-header">
+      <div class="l-course-title" id="sidebarCourseTitle">Loading...</div>
+      <div class="l-progress-wrap">
+        <div class="l-prog-bar"><div class="l-prog-fill" id="progressFill" style="width:0%"></div></div>
+        <div class="l-prog-text" id="progressText">0% complete</div>
+      </div>
+    </div>
+    <div id="modulesList"></div>
+  </aside>
+
+  <!-- LESSON MAIN -->
+  <div class="l-main">
+    <div class="l-content" id="lessonContent">
+      <div style="text-align:center;padding:5rem;color:var(--text-dim);font-family:'Orbitron',monospace;font-size:.8rem">Loading lesson...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase + Monaco + Pyodide -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>var require={paths:{vs:'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs'}};</script>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/editor/editor.main.nls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/editor/editor.main.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+
+<script>
+const params    = new URLSearchParams(window.location.search);
+const courseId  = params.get('course') || 'python';
+const modIdx    = parseInt(params.get('module') || '0');
+const lesIdx    = parseInt(params.get('lesson') || '0');
+
+let CU=null, completedSet=new Set(), pyodide=null, monacoEditor=null, autoSaveTimer=null;
+let course, mod, lesson, lessonId;
+
+// ── AUTH ──────────────────────────────────────────────────────────
+auth.onAuthStateChanged(async user => {
+  if (!user) { window.location.href='index.html'; return; }
+  CU = user;
+
+  // Check course ownership
+  const owned = await hasCourse(user.uid, courseId);
+  if (!owned) { window.location.href=`course-page.html?id=${courseId}`; return; }
+
+  course   = COURSES[courseId];
+  if (!course) { window.location.href='courses.html'; return; }
+  mod      = course.modules[modIdx] || { title:'Module', lessons:[] };
+  lesson   = mod.lessons[lesIdx]    || { name:'Lesson', type:'video', dur:'?' };
+  lessonId = `${courseId}_${modIdx}_${lesIdx}`;
+
+  document.title = lesson.name + ' — Mani Industries';
+  document.getElementById('lessonNavTitle').textContent = lesson.name;
+  document.getElementById('sidebarCourseTitle').textContent = course.icon + ' ' + course.title;
+
+  // Load completed lessons
+  const snap = await db.collection('progress').doc(user.uid).collection('courses').doc(courseId).collection('lessons').where('completed','==',true).get();
+  snap.forEach(d => completedSet.add(d.id));
+
+  updatePresence(user.uid);
+  renderSidebar();
+  renderLesson();
+  updateProgress();
+  setSyncBadge('synced');
+});
+
+// ── SIDEBAR ───────────────────────────────────────────────────────
+function renderSidebar() {
+  document.getElementById('modulesList').innerHTML = course.modules.map((m, mi) => `
+    <div class="mod-title">${m.title}</div>
+    ${m.lessons.map((l, li) => {
+      const lid    = `${courseId}_${mi}_${li}`;
+      const isCur  = mi===modIdx && li===lesIdx;
+      const isDone = completedSet.has(lid);
+      return `<div class="l-lesson-row ${isCur?'active':''} ${isDone?'done':''}" onclick="goToLesson(${mi},${li})">
+        <span>${l.type==='code'?'💻':'▶'}</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.name}</span>
+        ${isDone?`<span class="l-check">✓</span>`:''}
+      </div>`;
+    }).join('')}`).join('');
+}
+
+// ── LESSON RENDER ─────────────────────────────────────────────────
+function renderLesson() {
+  const isCode   = lesson.type === 'code';
+  const isDone   = completedSet.has(lessonId);
+  const total    = course.modules.reduce((a,m)=>a+m.lessons.length,0);
+  const hasPrev  = lesIdx>0 || modIdx>0;
+  const hasCurrMod = course.modules[modIdx];
+  const hasNext  = lesIdx<(hasCurrMod?.lessons.length-1||0) || modIdx<course.modules.length-1;
+
+  document.getElementById('lessonContent').innerHTML = `
+    <div class="l-breadcrumb">
+      <a onclick="window.location.href='courses.html'">Courses</a> /
+      <a onclick="window.location.href='course-page.html?id=${courseId}'">${course.title}</a> /
+      <span>${mod.title}</span>
+    </div>
+    <h1 class="l-title">${lesson.name}</h1>
+    <div class="l-meta-row">
+      <span class="l-meta-pill">${isCode?'💻 Code Practice':'▶ Video Lesson'}</span>
+      <span class="l-meta-pill">⏱ ${lesson.dur}</span>
+      <span class="l-meta-pill" id="completionStatus">${isDone?'✅ Completed':'○ Not started'}</span>
+    </div>
+
+    ${isCode ? renderCodeEditor() : renderVideoPlayer()}
+
+    ${renderQuiz(isCode)}
+
+    <div class="l-nav">
+      <button class="nav-lesson-btn" onclick="prevLesson()" ${!hasPrev?'disabled':''}>← Previous</button>
+      <button class="complete-btn ${isDone?'done':''}" id="completeBtn" onclick="markComplete()">
+        ${isDone ? '✅ Completed' : 'Mark Complete ✓'}
+      </button>
+      <button class="nav-lesson-btn" onclick="nextLesson()" ${!hasNext?'disabled':''}>Next →</button>
+    </div>`;
+
+  if (isCode) {
+    initMonaco();
+    loadPyodideRuntime();
+    loadSavedCode();
+    startAutoSave();
+  }
+}
+
+function renderVideoPlayer() {
+  return `<div class="video-box" id="videoBox">
+    <div class="video-placeholder" id="videoPlaceholder">
+      <div class="vid-icon">🎬</div>
+      <div class="vid-placeholder-text">Video will appear here once added by admin</div>
+      <input class="vid-url-input" id="vidUrlInput" placeholder="Paste YouTube or video URL..." onchange="loadVideo(this.value)" onclick="this.select()">
+      <div class="vid-note">Admin: paste the video URL above to embed it for this lesson</div>
+    </div>
+    <iframe id="videoFrame" allowfullscreen></iframe>
+  </div>`;
+}
+
+function renderCodeEditor() {
+  return `<div class="editor-wrap">
+    <div class="editor-toolbar">
+      <select class="editor-lang" id="langSelect" onchange="changeLang(this.value)">
+        <option value="python" ${courseId==='python'||courseId==='datascience'||courseId==='ml'?'selected':''}>Python</option>
+        <option value="javascript" ${courseId==='webdev'?'selected':''}>JavaScript</option>
+        <option value="java" ${courseId==='java'?'selected':''}>Java</option>
+        <option value="cpp" ${courseId==='cpp'?'selected':''}>C++</option>
+      </select>
+      <div style="flex:1;display:flex;align-items:center">
+        <span class="runner-status" id="runnerStatus">Loading Python runtime...</span>
+      </div>
+      <div class="editor-btns">
+        <button class="tool-btn" onclick="clearOutput()">Clear</button>
+        <button class="tool-btn" onclick="downloadCode()">⬇ Download</button>
+        <button class="run-btn" onclick="runCode()">▶ Run</button>
+      </div>
+    </div>
+    <div id="monacoEditor"></div>
+  </div>
+  <div class="output-label">Output</div>
+  <div class="output-box" id="outputBox"><span style="color:var(--text-dim)">Run your code to see output here...</span></div>`;
+}
+
+function renderQuiz(isCode) {
+  // Sample quiz per course — in production these come from Firestore
+  const quizzes = {
+    python:   { q:'What keyword is used to define a function in Python?', opts:['func','define','def','function'], correct:2 },
+    webdev:   { q:'Which HTML tag creates a hyperlink?', opts:['<link>','<a>','<href>','<url>'], correct:1 },
+    java:     { q:'Which keyword creates an instance of a class in Java?', opts:['create','make','new','build'], correct:2 },
+    cpp:      { q:'What operator is used to access a member via pointer?', opts:['.','->','::','*'], correct:1 },
+    datascience:{q:'Which library is used for data manipulation in Python?', opts:['NumPy','Pandas','Matplotlib','SciPy'], correct:1 },
+    ml:       { q:'What type of learning uses labelled data?', opts:['Unsupervised','Reinforcement','Supervised','Transfer'], correct:2 },
+    robotics: { q:'Which function controls LED blinking in Arduino?', opts:['blink()','delay()','flash()','pulse()'], correct:1 },
+  };
+  const q = quizzes[courseId];
+  if (!q) return '';
+  const qid = `${courseId}_q_${lesIdx}`;
+  return `<div class="quiz-wrap" id="quizSection">
+    <div class="quiz-title">🧠 Quick Check</div>
+    <div class="quiz-q">${q.q}</div>
+    <div class="quiz-options">
+      ${q.opts.map((opt,i)=>`<button class="quiz-opt" id="qopt-${i}" onclick="selectOption(${i},${q.correct},'${qid}')">${String.fromCharCode(65+i)}. ${opt}</button>`).join('')}
+    </div>
+    <button class="quiz-submit" id="quizSubmit" onclick="submitQuiz(${q.correct},'${qid}')">Submit Answer</button>
+    <div class="quiz-result" id="quizResult"></div>
+  </div>`;
+}
+
+// ── VIDEO ─────────────────────────────────────────────────────────
+function loadVideo(url) {
+  if (!url) return;
+  let src = url;
+  if (url.includes('youtube.com/watch')) {
+    const vid = new URL(url).searchParams.get('v');
+    src = `https://www.youtube.com/embed/${vid}?autoplay=0&rel=0`;
+  } else if (url.includes('youtu.be/')) {
+    src = `https://www.youtube.com/embed/${url.split('youtu.be/')[1]}`;
+  }
+  const frame = document.getElementById('videoFrame');
+  const ph    = document.getElementById('videoPlaceholder');
+  if (frame) { frame.src=src; frame.style.display='block'; }
+  if (ph)    ph.style.display='none';
+  if (CU) db.collection('progress').doc(CU.uid).collection('courses').doc(courseId).collection('lessons').doc(lessonId).set({videoUrl:url},{merge:true}).catch(()=>{});
+}
+
+// ── MONACO ────────────────────────────────────────────────────────
+function initMonaco() {
+  const lang = document.getElementById('langSelect')?.value || 'python';
+  require(['vs/editor/editor.main'], () => {
+    monacoEditor = monaco.editor.create(document.getElementById('monacoEditor'), {
+      value: getStarterCode(lang),
+      language: lang==='cpp'?'cpp':lang,
+      theme: 'vs-dark',
+      fontSize: 14,
+      minimap: { enabled:false },
+      scrollBeyondLastLine: false,
+      automaticLayout: true,
+      lineNumbers: 'on',
+      tabSize: 4,
+      fontFamily: "'Cascadia Code', 'Fira Code', 'Courier New', monospace",
+      fontLigatures: true,
+    });
+  });
+}
+
+function getStarterCode(lang) {
+  const starters = {
+    python:     `# Python Starter Code\nprint("Hello, Mani Industries!")\n\n# Write your code below:\n`,
+    javascript: `// JavaScript Starter Code\nconsole.log("Hello, Mani Industries!");\n\n// Write your code below:\n`,
+    java:       `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, Mani Industries!");\n    }\n}\n`,
+    cpp:        `#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello, Mani Industries!" << endl;\n    return 0;\n}\n`,
+  };
+  return starters[lang] || '// Write your code here\n';
+}
+
+function changeLang(lang) {
+  if (monacoEditor) {
+    monaco.editor.setModelLanguage(monacoEditor.getModel(), lang==='cpp'?'cpp':lang);
+    monacoEditor.setValue(getStarterCode(lang));
+  }
+}
+
+// ── PYODIDE ───────────────────────────────────────────────────────
+async function loadPyodideRuntime() {
+  const status = document.getElementById('runnerStatus');
+  if (status) status.textContent = 'Loading Python...';
+  try {
+    pyodide = await loadPyodide({ indexURL:'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
+    if (status) status.textContent = '● Python ready';
+  } catch(e) {
+    if (status) status.textContent = '○ Python unavailable';
+  }
+}
+
+// ── RUN CODE ──────────────────────────────────────────────────────
+function runCode() {
+  const lang = document.getElementById('langSelect')?.value || 'python';
+  const code = monacoEditor?.getValue() || '';
+  clearOutput();
+  if (lang === 'python') runPython(code);
+  else printOutput(`ℹ ${lang.toUpperCase()} runs on your local machine. Download and run it there.`, 'out-line');
+}
+
+async function runPython(code) {
+  if (!pyodide) { printOutput('Python not loaded yet — please wait.','out-err'); return; }
+  try {
+    pyodide.setStdout({ batched:(text)=>printOutput(text,'out-line') });
+    pyodide.setStderr({ batched:(text)=>printOutput(text,'out-err') });
+    await pyodide.runPythonAsync(code);
+    printOutput('\n✓ Done','out-success');
+  } catch(e) { printOutput(e.message,'out-err'); }
+}
+
+function printOutput(text, cls='out-line') {
+  const box = document.getElementById('outputBox');
+  if (!box) return;
+  if (box.querySelector('span[style]')) box.innerHTML = '';
+  const el = document.createElement('div');
+  el.className = cls; el.textContent = text;
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+}
+
+function clearOutput() {
+  const box = document.getElementById('outputBox');
+  if (box) box.innerHTML = '';
+}
+
+function downloadCode() {
+  const lang = document.getElementById('langSelect')?.value || 'python';
+  const ext  = {python:'py',javascript:'js',java:'java',cpp:'cpp'}[lang]||'txt';
+  const code = monacoEditor?.getValue() || '';
+  const blob = new Blob([code], {type:'text/plain'});
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `lesson_${lessonId}.${ext}`;
+  a.click();
+}
+
+// ── AUTO SAVE CODE ────────────────────────────────────────────────
+function startAutoSave() {
+  clearInterval(autoSaveTimer);
+  autoSaveTimer = setInterval(() => {
+    if (CU && monacoEditor) {
+      const code = monacoEditor.getValue();
+      db.collection('progress').doc(CU.uid).collection('courses').doc(courseId).collection('lessons').doc(lessonId).set({savedCode:code,savedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(()=>{});
+      setSyncBadge('synced');
+    }
+  }, 30000);
+}
+
+async function loadSavedCode() {
+  try {
+    const doc = await db.collection('progress').doc(CU.uid).collection('courses').doc(courseId).collection('lessons').doc(lessonId).get();
+    if (doc.exists && doc.data().savedCode && monacoEditor) {
+      setTimeout(() => monacoEditor?.setValue(doc.data().savedCode), 800);
+    }
+  } catch(e){}
+}
+
+// ── QUIZ ──────────────────────────────────────────────────────────
+let selectedOpt = null;
+function selectOption(idx, correct, qid) {
+  selectedOpt = idx;
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('qopt-'+idx)?.classList.add('selected');
+}
+
+async function submitQuiz(correct, qid) {
+  if (selectedOpt===null) { return; }
+  const isCorrect = selectedOpt===correct;
+  const resultEl  = document.getElementById('quizResult');
+  const submitEl  = document.getElementById('quizSubmit');
+  document.querySelectorAll('.quiz-opt').forEach((b,i) => {
+    b.classList.remove('selected');
+    if (i===correct) b.classList.add('correct');
+    else if (i===selectedOpt && !isCorrect) b.classList.add('wrong');
+    b.onclick = null;
+  });
+  resultEl.textContent = isCorrect ? '🎉 Correct! Well done.' : `✗ Not quite — the correct answer is highlighted.`;
+  resultEl.className   = `quiz-result ${isCorrect?'correct':'wrong'}`;
+  resultEl.style.display = 'block';
+  if (submitEl) { submitEl.disabled=true; submitEl.textContent='Submitted'; }
+  if (CU && isCorrect) {
+    await completeLesson(CU.uid, courseId, qid, 5);
+    updateProgress();
+  }
+}
+
+// ── MARK COMPLETE ─────────────────────────────────────────────────
+async function markComplete() {
+  if (!CU) return;
+  const btn = document.getElementById('completeBtn');
+  if (!btn) return;
+  btn.disabled=true; btn.textContent='Saving...';
+  try {
+    await completeLesson(CU.uid, courseId, lessonId, 10);
+    completedSet.add(lessonId);
+    btn.className='complete-btn done'; btn.textContent='✅ Completed'; btn.disabled=false;
+    const statusEl = document.getElementById('completionStatus');
+    if (statusEl) statusEl.textContent='✅ Completed';
+    renderSidebar();
+    updateProgress();
+    setSyncBadge('synced');
+    // Save code if code lesson
+    if (lesson.type==='code' && monacoEditor) {
+      const code = monacoEditor.getValue();
+      await db.collection('progress').doc(CU.uid).collection('courses').doc(courseId).collection('lessons').doc(lessonId).set({savedCode:code},{merge:true});
+    }
+  } catch(e) { btn.disabled=false; btn.textContent='Mark Complete ✓'; }
+}
+
+// ── PROGRESS ─────────────────────────────────────────────────────
+function updateProgress() {
+  const total = course.modules.reduce((a,m)=>a+m.lessons.length,0);
+  const pct   = total ? Math.round((completedSet.size/total)*100) : 0;
+  const fill  = document.getElementById('progressFill');
+  const text  = document.getElementById('progressText');
+  if (fill) fill.style.width = pct+'%';
+  if (text) text.textContent = `${pct}% complete (${completedSet.size}/${total})`;
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+function goToLesson(mi, li) {
+  clearInterval(autoSaveTimer);
+  window.location.href = `lesson.html?course=${courseId}&module=${mi}&lesson=${li}`;
+}
+
+function prevLesson() {
+  if (lesIdx>0) goToLesson(modIdx, lesIdx-1);
+  else if (modIdx>0) { const pm=course.modules[modIdx-1]; goToLesson(modIdx-1, pm.lessons.length-1); }
+}
+
+function nextLesson() {
+  const currMod = course.modules[modIdx];
+  if (lesIdx<currMod.lessons.length-1) goToLesson(modIdx, lesIdx+1);
+  else if (modIdx<course.modules.length-1) goToLesson(modIdx+1, 0);
+}
+
+function goBack() {
+  clearInterval(autoSaveTimer);
+  window.location.href = `course-page.html?id=${courseId}`;
+}
+
+// ── SYNC BADGE ────────────────────────────────────────────────────
+function setSyncBadge(status) {
+  const b = document.getElementById('syncBadge');
+  if (!b) return;
+  if (status==='synced') { b.style.color='#00ff88'; b.textContent='● Saved'; }
+  else { b.style.color='#ffd700'; b.textContent='● Syncing'; }
+}
+
+// ── THEME ─────────────────────────────────────────────────────────
+(function(){ document.body.dataset.theme = localStorage.getItem('mi_theme')||'blue'; })();
+</script>
+</body>
+</html>

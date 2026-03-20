@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Mani Industries</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050d1a;--bg2:#070f20;--bg3:#0a1628;--accent:#00c8ff;--accent2:#0088cc;--glow:rgba(0,200,255,0.2);--text:#e8f4ff;--text-dim:#7a9bb5;--border:rgba(0,200,255,0.15);--nav-bg:rgba(5,13,26,0.95);--red:#ff3366;--green:#00ff88;--yellow:#ffd700}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+button{cursor:pointer;border:none;background:none;font-family:inherit;color:inherit}
+a{text-decoration:none;color:inherit}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+
+/* AUTH GUARD */
+#authGuard{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:1rem}
+.gl{font-family:'Orbitron',monospace;font-size:3rem;color:var(--accent);animation:gp 1.5s ease-in-out infinite}
+@keyframes gp{0%,100%{text-shadow:0 0 20px var(--accent)}50%{text-shadow:0 0 60px var(--accent)}}
+
+/* NAV */
+#navbar{position:fixed;top:0;left:0;right:0;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;background:var(--nav-bg);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,51,102,.25);z-index:1000}
+.nav-brand{display:flex;align-items:center;gap:.75rem}
+.admin-badge{font-family:'Orbitron',monospace;font-size:.6rem;font-weight:700;padding:4px 10px;background:rgba(255,51,102,.15);border:1px solid rgba(255,51,102,.3);border-radius:50px;color:var(--red);letter-spacing:1px}
+.nav-logo img{width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 0 8px var(--accent))}
+.nav-logo-fb{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:900;color:var(--bg);display:flex;align-items:center;justify-content:center}
+.nav-right{display:flex;align-items:center;gap:.75rem;font-size:.82rem;color:var(--text-dim)}
+.nav-user{font-family:'Orbitron',monospace;font-size:.62rem;color:var(--accent)}
+.nav-signout{padding:6px 14px;border:1px solid var(--border);border-radius:8px;font-size:.75rem;transition:all .2s}
+.nav-signout:hover{border-color:var(--red);color:var(--red)}
+
+/* LAYOUT */
+.admin-wrap{display:grid;grid-template-columns:220px 1fr;min-height:100vh;padding-top:60px}
+aside#sidebar{position:fixed;top:60px;left:0;width:220px;height:calc(100vh - 60px);background:var(--bg2);border-right:1px solid var(--border);padding:1.2rem .8rem;display:flex;flex-direction:column;gap:.2rem;overflow-y:auto;z-index:100}
+.sb-sec{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;padding:.9rem .5rem .3rem}
+.sb-lnk{display:flex;align-items:center;gap:.65rem;padding:10px 12px;border-radius:9px;color:var(--text-dim);font-weight:600;font-size:.88rem;transition:all .2s;cursor:pointer;border:1px solid transparent;width:100%;text-align:left}
+.sb-lnk:hover{color:var(--accent);background:rgba(0,200,255,.05);border-color:var(--border)}
+.sb-lnk.active{color:var(--accent);background:rgba(0,200,255,.1);border-color:var(--border)}
+.sb-lnk svg{opacity:.7;flex-shrink:0}
+.sb-lnk.active svg{opacity:1}
+.sb-badge{margin-left:auto;background:var(--red);color:#fff;font-family:'Orbitron',monospace;font-size:.55rem;font-weight:700;padding:2px 7px;border-radius:50px;min-width:20px;text-align:center}
+.sb-badge.green{background:var(--green);color:var(--bg)}
+
+/* MAIN */
+#main{margin-left:220px;padding:2rem;min-height:calc(100vh - 60px)}
+.panel{display:none;animation:fu .35s ease}
+.panel.active{display:block}
+@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.pg-tag{font-family:'Orbitron',monospace;font-size:.56rem;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:.4rem}
+.pg-title{font-family:'Orbitron',monospace;font-size:1.6rem;font-weight:900;margin-bottom:.25rem}
+.pg-title span{color:var(--accent)}
+.pg-sub{color:var(--text-dim);font-size:.9rem;margin-bottom:2rem}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin-bottom:2rem}
+.sc{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:1.3rem;position:relative;overflow:hidden;transition:all .3s}
+.sc:hover{border-color:var(--accent);transform:translateY(-2px)}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.sc-icon{font-size:1.4rem;margin-bottom:.6rem}
+.sc-val{font-family:'Orbitron',monospace;font-size:1.7rem;font-weight:900;color:var(--accent)}
+.sc-lbl{color:var(--text-dim);font-size:.8rem;margin-top:.2rem}
+
+/* CARD */
+.ac{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem}
+.ac-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem}
+.ac-title{font-family:'Orbitron',monospace;font-size:.8rem;font-weight:700;letter-spacing:1px}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:.88rem}
+.tbl th{text-align:left;font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:2px;color:var(--text-dim);padding:.75rem 1rem;border-bottom:1px solid var(--border);text-transform:uppercase;white-space:nowrap}
+.tbl td{padding:.85rem 1rem;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+.tbl tr:last-child td{border-bottom:none}
+
+/* BADGES */
+.badge{font-family:'Orbitron',monospace;font-size:.55rem;font-weight:700;padding:3px 9px;border-radius:50px;letter-spacing:.5px;white-space:nowrap}
+.bg-active{background:rgba(0,255,136,.12);color:var(--green);border:1px solid rgba(0,255,136,.25)}
+.bg-pending{background:rgba(255,215,0,.12);color:var(--yellow);border:1px solid rgba(255,215,0,.25)}
+.bg-rejected{background:rgba(255,51,102,.12);color:var(--red);border:1px solid rgba(255,51,102,.25)}
+.bg-free{background:rgba(122,155,181,.1);color:var(--text-dim);border:1px solid var(--border)}
+.bg-basic{background:rgba(0,200,255,.1);color:var(--accent);border:1px solid rgba(0,200,255,.2)}
+.bg-pro{background:rgba(139,92,246,.1);color:#8b5cf6;border:1px solid rgba(139,92,246,.2)}
+.bg-premium{background:rgba(255,215,0,.1);color:var(--yellow);border:1px solid rgba(255,215,0,.2)}
+.bg-live{background:rgba(255,50,50,.12);color:#ff5050;border:1px solid rgba(255,50,50,.25);animation:lp 1.5s ease-in-out infinite}
+@keyframes lp{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* BUTTONS */
+.btn{padding:8px 16px;font-family:'Orbitron',monospace;font-size:.62rem;font-weight:700;letter-spacing:1px;border-radius:8px;transition:all .25s;cursor:pointer;border:1px solid;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);border-color:var(--accent);box-shadow:0 4px 15px var(--glow)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px var(--glow)}
+.btn-green{background:rgba(0,255,136,.15);color:var(--green);border-color:rgba(0,255,136,.3)}
+.btn-green:hover{background:rgba(0,255,136,.25)}
+.btn-red{background:rgba(255,51,102,.12);color:var(--red);border-color:rgba(255,51,102,.25)}
+.btn-red:hover{background:rgba(255,51,102,.2)}
+.btn-outline{background:transparent;color:var(--text-dim);border-color:var(--border)}
+.btn-outline:hover{color:var(--accent);border-color:var(--accent)}
+.btn-sm{padding:5px 10px;font-size:.56rem}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.fg{margin-bottom:1rem}
+.fg label{display:block;font-size:.72rem;color:var(--text-dim);letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase;font-family:'Orbitron',monospace;font-size:.58rem}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 13px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.93rem;outline:none;transition:border .3s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent)}
+.fg select option{background:var(--bg3)}
+.fg textarea{resize:vertical;min-height:80px}
+
+/* SEARCH */
+.search-row{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem}
+.s-wrap{position:relative;flex:1}
+.s-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.4}
+.s-inp{width:100%;padding:10px 14px 10px 38px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.9rem;outline:none;transition:border .3s}
+.s-inp:focus{border-color:var(--accent)}
+
+/* TOAST */
+.mi-toast{position:fixed;bottom:2rem;right:2rem;z-index:9999;background:var(--bg3);border:1px solid var(--accent);color:var(--text);padding:1rem 1.5rem;border-radius:10px;font-size:.9rem;box-shadow:0 10px 40px rgba(0,0,0,.4);animation:fu .3s ease;max-width:320px;line-height:1.4}
+
+@media(max-width:1100px){.stats-row{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}}
+@media(max-width:900px){#sidebar{transform:translateX(-100%)}#main{margin-left:0}}
+</style>
+</head>
+<body>
+
+<div id="authGuard"><div class="gl">M</div><div style="font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:4px;color:var(--text-dim)">Admin Access Only</div></div>
+
+<nav id="navbar">
+  <div class="nav-brand">
+    <a href="index.html" style="display:flex;align-items:center">
+      <img src="logo.png" alt="M" class="nav-logo" onerror="this.style.display='none';document.getElementById('nlFb').style.display='flex'">
+      <div id="nlFb" class="nav-logo-fb" style="display:none">M</div>
+    </a>
+    <span class="admin-badge">⚡ ADMIN PANEL</span>
+  </div>
+  <div class="nav-right">
+    <span class="nav-user" id="adminUserName">Loading...</span>
+    <a href="dashboard.html" style="padding:6px 14px;border:1px solid var(--border);border-radius:8px;font-family:'Orbitron',monospace;font-size:.6rem;transition:all .2s">Dashboard</a>
+    <button class="nav-signout" onclick="auth.signOut().then(()=>window.location.href='index.html')">Sign Out</button>
+  </div>
+</nav>
+
+<div class="admin-wrap">
+  <aside id="sidebar">
+    <div class="sb-sec">Overview</div>
+    <button class="sb-lnk active" onclick="show('dashboard',this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <div class="sb-sec">Courses</div>
+    <button class="sb-lnk" onclick="show('courses',this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      Manage Courses
+    </button>
+    <button class="sb-lnk" onclick="show('addCourse',this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Add Course
+    </button>
+    <div class="sb-sec">Finance</div>
+    <button class="sb-lnk" onclick="show('purchases',this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Purchases
+      <span class="sb-badge" id="pendingBadge" style="display:none">0</span>
+    </button>
+    <button class="sb-lnk" onclick="show('subscriptions',this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Subscriptions
+    </button>
+    <div class="sb-sec">Users</div>
+    <button class="sb-lnk" onclick="show('users',this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Users
+    </button>
+    <div class="sb-sec">Content</div>
+    <button class="sb-lnk" onclick="show('liveSessions',this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+      Live Sessions
+    </button>
+    <button class="sb-lnk" onclick="show('leaderboard',this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Leaderboard
+    </button>
+    <button class="sb-lnk" onclick="show('ebooks',this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      E-books
+    </button>
+    <div class="sb-sec">Communicate</div>
+    <button class="sb-lnk" onclick="show('notifications',this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      Notifications
+      <span class="sb-badge green" id="notifSentBadge" style="display:none">✓</span>
+    </button>
+    <div class="sb-sec">System</div>
+    <button class="sb-lnk" onclick="show('settings',this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </button>
+  </aside>
+
+  <main id="main">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="p-dashboard">
+      <div class="pg-tag">Admin</div>
+      <h1 class="pg-title">Admin <span>Dashboard</span></h1>
+      <p class="pg-sub">Platform overview — real-time data from Firestore</p>
+      <div class="stats-row">
+        <div class="sc"><div class="sc-icon">👥</div><div class="sc-val" id="st-users">—</div><div class="sc-lbl">Total Users</div></div>
+        <div class="sc"><div class="sc-icon">💳</div><div class="sc-val" id="st-sales">—</div><div class="sc-lbl">Course Sales</div></div>
+        <div class="sc"><div class="sc-icon">💰</div><div class="sc-val" id="st-revenue">—</div><div class="sc-lbl">Revenue (₹)</div></div>
+        <div class="sc"><div class="sc-icon">⏳</div><div class="sc-val" id="st-pending">—</div><div class="sc-lbl">Pending UPI Approvals</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+        <div class="ac">
+          <div class="ac-head"><span class="ac-title">Recent Purchases</span><button class="btn btn-outline btn-sm" onclick="show('purchases',null)">View All</button></div>
+          <div id="dash-recent-purchases"><div style="color:var(--text-dim);font-size:.85rem;text-align:center;padding:1.5rem">Loading...</div></div>
+        </div>
+        <div class="ac">
+          <div class="ac-head"><span class="ac-title">Recent Signups</span><button class="btn btn-outline btn-sm" onclick="show('users',null)">View All</button></div>
+          <div id="dash-recent-users"><div style="color:var(--text-dim);font-size:.85rem;text-align:center;padding:1.5rem">Loading...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANAGE COURSES -->
+    <div class="panel" id="p-courses">
+      <div class="pg-tag">Content</div>
+      <h1 class="pg-title">Manage <span>Courses</span></h1>
+      <p class="pg-sub">All courses are defined in firebase-config.js. Prices, features and curriculum live there.</p>
+      <div class="ac">
+        <table class="tbl">
+          <thead><tr><th>Course</th><th>Level</th><th>Price</th><th>Weeks</th><th>Lessons</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="coursesTbl"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ADD COURSE (Firestore - dynamic) -->
+    <div class="panel" id="p-addCourse">
+      <div class="pg-tag">Content</div>
+      <h1 class="pg-title">Add <span>Course</span></h1>
+      <p class="pg-sub">Add a course to Firestore. It will appear on the courses page after publishing.</p>
+      <div class="ac" style="max-width:700px">
+        <div class="form-grid">
+          <div class="fg"><label>Course ID (e.g. "webdev2")</label><input type="text" id="ac-id" placeholder="unique_id"></div>
+          <div class="fg"><label>Title</label><input type="text" id="ac-title" placeholder="Full Stack Bootcamp"></div>
+          <div class="fg"><label>Icon (emoji)</label><input type="text" id="ac-icon" placeholder="🌐"></div>
+          <div class="fg"><label>Price (₹)</label><input type="number" id="ac-price" placeholder="2000" min="0"></div>
+          <div class="fg"><label>Level</label><select id="ac-level"><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>All Levels</option></select></div>
+          <div class="fg"><label>Duration (weeks)</label><input type="number" id="ac-weeks" placeholder="10" min="1"></div>
+          <div class="fg" style="grid-column:1/-1"><label>Short Description</label><input type="text" id="ac-desc" placeholder="One-line course description"></div>
+          <div class="fg" style="grid-column:1/-1"><label>Tags (comma-separated)</label><input type="text" id="ac-tags" placeholder="Python, OOP, Automation"></div>
+          <div class="fg" style="grid-column:1/-1"><label>Features (one per line)</label><textarea id="ac-feats" placeholder="40 video lessons&#10;2 live classes/week&#10;Certificate of completion"></textarea></div>
+          <div class="fg" style="grid-column:1/-1"><label>Long Description</label><textarea id="ac-longdesc"></textarea></div>
+        </div>
+        <div style="display:flex;gap:1rem;margin-top:.5rem">
+          <button class="btn btn-primary" onclick="saveCourseToFirestore()">Save to Firestore</button>
+          <button class="btn btn-outline" onclick="clearAddForm()">Clear</button>
+        </div>
+        <div id="ac-result" style="margin-top:1rem;font-size:.85rem;color:var(--text-dim)"></div>
+      </div>
+    </div>
+
+    <!-- PURCHASES -->
+    <div class="panel" id="p-purchases">
+      <div class="pg-tag">Finance</div>
+      <h1 class="pg-title">Course <span>Purchases</span></h1>
+      <p class="pg-sub">Approve UPI payments manually. Card payments auto-approve via Razorpay.</p>
+      <div class="search-row">
+        <div class="s-wrap"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="s-inp" id="purchaseSearch" placeholder="Search by user, course..." oninput="filterPurchases()"></div>
+        <select id="purchaseFilter" class="s-inp" style="max-width:180px" onchange="filterPurchases()">
+          <option value="">All Status</option>
+          <option value="pending_verification">Pending</option>
+          <option value="active">Active</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="loadPurchases()">↺ Refresh</button>
+      </div>
+      <div class="ac" style="overflow-x:auto">
+        <table class="tbl">
+          <thead><tr><th>User ID</th><th>Course</th><th>Amount</th><th>Method</th><th>Phone</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="purchasesTbl"><tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-dim)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTIONS -->
+    <div class="panel" id="p-subscriptions">
+      <div class="pg-tag">Finance</div>
+      <h1 class="pg-title">Platform <span>Subscriptions</span></h1>
+      <p class="pg-sub">Users who have active Basic / Pro / Premium plans.</p>
+      <div class="ac" style="overflow-x:auto">
+        <table class="tbl">
+          <thead><tr><th>User</th><th>Plan</th><th>Amount</th><th>Method</th><th>Started</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="subsTbl"><tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-dim)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div class="panel" id="p-users">
+      <div class="pg-tag">People</div>
+      <h1 class="pg-title">All <span>Users</span></h1>
+      <div class="search-row">
+        <div class="s-wrap"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="s-inp" id="userSearch" placeholder="Search name or email..." oninput="filterUsers()"></div>
+        <button class="btn btn-outline btn-sm" onclick="loadUsers()">↺ Refresh</button>
+      </div>
+      <div class="ac" style="overflow-x:auto">
+        <table class="tbl">
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Plan</th><th>XP</th><th>Joined</th><th>Role</th><th>Actions</th></tr></thead>
+          <tbody id="usersTbl"><tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-dim)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LIVE SESSIONS -->
+    <div class="panel" id="p-liveSessions">
+      <div class="pg-tag">Schedule</div>
+      <h1 class="pg-title">Live <span>Sessions</span></h1>
+      <p class="pg-sub">Schedule live classes — students with the course will see them in their dashboard.</p>
+      <div style="display:grid;grid-template-columns:380px 1fr;gap:1.5rem;align-items:start">
+        <div class="ac">
+          <div class="ac-head"><span class="ac-title">Schedule Session</span></div>
+          <div class="fg"><label>Course</label>
+            <select id="ls-course">
+              ${Object.values(COURSES||{}).map(c=>`<option value="${c.id||''}">${(c.icon||'')} ${c.title||''}</option>`).join('')}
+            </select>
+          </div>
+          <div class="fg"><label>Topic / Title</label><input type="text" id="ls-topic" placeholder="React Hooks Deep Dive"></div>
+          <div class="fg"><label>Date & Time</label><input type="datetime-local" id="ls-datetime"></div>
+          <div class="fg"><label>Duration (minutes)</label><input type="number" id="ls-duration" value="60" min="15"></div>
+          <div class="fg"><label>Google Meet / Zoom Link</label><input type="text" id="ls-link" placeholder="https://meet.google.com/xxx-xxxx-xxx"></div>
+          <div class="fg"><label>Notes (optional)</label><textarea id="ls-notes" style="min-height:60px" placeholder="Topics to cover, prep material..."></textarea></div>
+          <button class="btn btn-primary" onclick="scheduleSession()" style="width:100%;padding:12px">Schedule Live Session</button>
+        </div>
+        <div class="ac">
+          <div class="ac-head"><span class="ac-title">Upcoming Sessions</span><button class="btn btn-outline btn-sm" onclick="loadSessions()">↺</button></div>
+          <div id="sessionsList"><div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">Loading...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div class="panel" id="p-leaderboard">
+      <div class="pg-tag">Rankings</div>
+      <h1 class="pg-title">Weekly <span>Leaderboard</span></h1>
+      <p class="pg-sub">Real-time from Firebase Realtime Database. Resets every Monday.</p>
+      <div class="ac">
+        <div class="ac-head"><span class="ac-title" id="lbWeekLabel">This Week</span><button class="btn btn-outline btn-sm" onclick="loadAdminLeaderboard()">↺ Refresh</button></div>
+        <div id="lbList"><div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">Loading from Realtime DB...</div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="p-settings">
+      <div class="pg-tag">System</div>
+      <h1 class="pg-title">Platform <span>Settings</span></h1>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start">
+        <div class="ac">
+          <div class="ac-head"><span class="ac-title">Payment Config</span></div>
+          <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:1rem">Stored in Firestore settings/platform. Do NOT expose Razorpay secret key here.</p>
+          <div class="fg"><label>UPI VPA (Your UPI ID)</label><input type="text" id="set-upi" placeholder="yourname@upi"></div>
+          <div class="fg"><label>Razorpay Key ID (public)</label><input type="text" id="set-rzp" placeholder="rzp_live_XXXXXXXXXX"></div>
+          <div class="fg"><label>Support WhatsApp Number</label><input type="text" id="set-phone" placeholder="+91XXXXXXXXXX"></div>
+          <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+        </div>
+        <div class="ac">
+          <div class="ac-head"><span class="ac-title">Admin Management</span></div>
+          <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:1rem">Grant admin role to a user via Cloud Function. Make sure <code>setAdmin</code> function is deployed.</p>
+          <div class="fg"><label>User Email to Promote</label><input type="email" id="set-adminEmail" placeholder="user@example.com"></div>
+          <div style="display:flex;gap:.75rem">
+            <button class="btn btn-green" onclick="grantAdmin(true)">Grant Admin</button>
+            <button class="btn btn-red" onclick="grantAdmin(false)">Revoke Admin</button>
+          </div>
+          <div id="adminResult" style="margin-top:1rem;font-size:.82rem;color:var(--text-dim)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EBOOKS -->
+    <div class="panel" id="p-ebooks">
+      <div class="pg-tag">Library</div>
+      <h1 class="pg-title">Manage <span>E-Books</span></h1>
+      <p class="pg-sub">Add ebooks here — they appear instantly on the student dashboard. No Firestore needed.</p>
+
+      <div style="display:grid;grid-template-columns:400px 1fr;gap:1.5rem;align-items:start">
+
+        <!-- ADD FORM -->
+        <div class="ac">
+          <div class="ac-head"><span class="ac-title" id="ebookFormTitle">Add New Ebook</span></div>
+          <input type="hidden" id="eb-edit-id">
+
+          <div class="fg">
+            <label>Title <span style="color:var(--red)">*</span></label>
+            <input type="text" id="eb-title" placeholder="e.g. Python for Automation">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div class="fg">
+              <label>Icon (emoji)</label>
+              <input type="text" id="eb-icon" placeholder="📗" maxlength="4">
+            </div>
+            <div class="fg">
+              <label>Pages</label>
+              <input type="number" id="eb-pages" placeholder="280" min="1">
+            </div>
+          </div>
+          <div class="fg">
+            <label>Related Course (optional)</label>
+            <select id="eb-course">
+              <option value="">— General / All courses —</option>
+              <option value="Web Development">Web Development</option>
+              <option value="Python with Automation">Python with Automation</option>
+              <option value="C++">C++</option>
+              <option value="Data Science">Data Science with Python</option>
+              <option value="Machine Learning">Machine Learning</option>
+              <option value="Robotics">Robotics with Kit</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>PDF Link <span style="color:var(--red)">*</span></label>
+            <input type="url" id="eb-url" placeholder="https://drive.google.com/... or any direct PDF link">
+            <div style="font-size:.72rem;color:var(--text-dim);margin-top:.35rem">
+              💡 Upload PDF to Google Drive → Share → Copy link → paste here
+            </div>
+          </div>
+          <div class="fg">
+            <label>Description (optional)</label>
+            <textarea id="eb-desc" style="min-height:70px" placeholder="Brief description of what's inside..."></textarea>
+          </div>
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+            <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.88rem">
+              <input type="checkbox" id="eb-free" style="width:16px;height:16px;accent-color:var(--accent)">
+              Free for all users (no subscription needed)
+            </label>
+          </div>
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem">
+            <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.88rem">
+              <input type="checkbox" id="eb-published" checked style="width:16px;height:16px;accent-color:var(--accent)">
+              Published (visible to students)
+            </label>
+          </div>
+
+          <div style="display:flex;gap:.75rem">
+            <button class="btn btn-primary" onclick="saveEbook()" id="ebSaveBtn" style="flex:1;padding:12px;justify-content:center">
+              + Add Ebook
+            </button>
+            <button class="btn btn-outline" onclick="clearEbookForm()">Clear</button>
+          </div>
+          <div id="ebResult" style="margin-top:.75rem;font-size:.82rem"></div>
+        </div>
+
+        <!-- EBOOK LIST -->
+        <div class="ac">
+          <div class="ac-head">
+            <span class="ac-title">All Ebooks</span>
+            <button class="btn btn-outline btn-sm" onclick="loadAdminEbooks()">↺ Refresh</button>
+          </div>
+          <div id="adminEbookList">
+            <div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="panel" id="p-notifications">
+      <div class="pg-tag">Communicate</div>
+      <h1 class="pg-title">Send <span>Notifications</span></h1>
+      <p class="pg-sub">Broadcast messages to all users or target specific groups. Delivered instantly.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start">
+
+        <!-- SEND FORM -->
+        <div class="ac">
+          <div class="ac-head"><span class="ac-title">Compose Notification</span></div>
+
+          <div class="fg">
+            <label>Title</label>
+            <input type="text" id="notif-title" placeholder="e.g. New live session scheduled!" maxlength="80">
+          </div>
+          <div class="fg">
+            <label>Message</label>
+            <textarea id="notif-body" placeholder="Write your message here..." style="min-height:100px" maxlength="400"></textarea>
+          </div>
+          <div class="fg">
+            <label>Icon / Emoji</label>
+            <input type="text" id="notif-icon" placeholder="🎉" maxlength="4" style="max-width:100px">
+          </div>
+          <div class="fg">
+            <label>Send To</label>
+            <select id="notif-target">
+              <option value="all">All Users</option>
+              <option value="basic">Basic Plan & above</option>
+              <option value="pro">Pro Plan & above</option>
+              <option value="premium">Premium Plan only</option>
+              <option value="webdev">Web Development buyers</option>
+              <option value="python">Python buyers</option>
+              <option value="cpp">C++ buyers</option>
+              <option value="datascience">Data Science buyers</option>
+              <option value="ml">Machine Learning buyers</option>
+              <option value="robotics">Robotics buyers</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Link (optional)</label>
+            <input type="text" id="notif-link" placeholder="e.g. dashboard.html or https://meet.google.com/...">
+          </div>
+
+          <div style="display:flex;gap:.75rem;margin-top:.5rem">
+            <button class="btn btn-primary" onclick="sendNotification()" id="sendNotifBtn" style="flex:1;padding:12px;justify-content:center">
+              📣 Send Now
+            </button>
+            <button class="btn btn-outline" onclick="clearNotifForm()">Clear</button>
+          </div>
+          <div id="notifSendResult" style="margin-top:.75rem;font-size:.82rem;color:var(--text-dim)"></div>
+        </div>
+
+        <!-- SENT HISTORY -->
+        <div class="ac">
+          <div class="ac-head">
+            <span class="ac-title">Sent Notifications</span>
+            <button class="btn btn-outline btn-sm" onclick="loadNotifHistory()">↺ Refresh</button>
+          </div>
+          <div id="notifHistory">
+            <div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREVIEW -->
+      <div class="ac" style="margin-top:1.5rem">
+        <div class="ac-head"><span class="ac-title">Live Preview — what users will see</span></div>
+        <div id="notifPreview" style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.2rem;display:flex;align-items:flex-start;gap:1rem;max-width:420px">
+          <div id="prevIcon" style="font-size:1.8rem;flex-shrink:0">🔔</div>
+          <div>
+            <div id="prevTitle" style="font-family:'Orbitron',monospace;font-size:.8rem;font-weight:700;margin-bottom:.3rem;color:var(--text)">Notification title</div>
+            <div id="prevBody" style="font-size:.85rem;color:var(--text-dim);line-height:1.5">Your message will appear here...</div>
+            <div id="prevTime" style="font-size:.7rem;color:var(--text-dim);margin-top:.4rem;opacity:.6">Just now</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+let CU=null, allPurchases=[], allUsers=[];
+
+// ── AUTH ──────────────────────────────────────────────────────────
+auth.onAuthStateChanged(async user => {
+  if (!user) { window.location.href='index.html'; return; }
+  const adminOk = await isAdmin(user);
+  const ownerOk = await isOwner(user);
+  if (!adminOk && !ownerOk) { toast('Access denied — admin only','error'); setTimeout(()=>window.location.href='dashboard.html',2000); return; }
+  CU = user;
+  document.getElementById('authGuard').style.display='none';
+  document.getElementById('adminUserName').textContent = user.displayName||user.email;
+  loadAll();
+});
+
+function loadAll() {
+  loadDashboardStats();
+  loadPurchases();
+  loadUsers();
+  loadSessions();
+  loadAdminLeaderboard();
+  loadSettings();
+  buildCourseTable();
+  populateLsCourseDropdown();
+}
+
+// ── SHOW PANEL ────────────────────────────────────────────────────
+function show(name, btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-lnk').forEach(l=>l.classList.remove('active'));
+  document.getElementById('p-'+name)?.classList.add('active');
+  btn?.classList.add('active');
+}
+
+// ── DASHBOARD STATS ───────────────────────────────────────────────
+async function loadDashboardStats() {
+  try {
+    const [usersSnap, salesSnap, pendingSnap] = await Promise.all([
+      db.collection('users').get(),
+      db.collection('coursePurchases').where('status','==','active').get(),
+      db.collection('coursePurchases').where('status','==','pending_verification').get(),
+    ]);
+    document.getElementById('st-users').textContent    = usersSnap.size;
+    document.getElementById('st-sales').textContent    = salesSnap.size;
+    document.getElementById('st-pending').textContent  = pendingSnap.size;
+    let rev = 0;
+    salesSnap.forEach(d => rev += (d.data().amount||0));
+    document.getElementById('st-revenue').textContent  = '₹'+rev.toLocaleString('en-IN');
+    if (pendingSnap.size > 0) {
+      const pb = document.getElementById('pendingBadge');
+      pb.textContent = pendingSnap.size; pb.style.display='inline';
+    }
+
+    // Recent purchases
+    const recentP = await db.collection('coursePurchases').orderBy('createdAt','desc').limit(5).get();
+    document.getElementById('dash-recent-purchases').innerHTML = recentP.docs.map(d=>{
+      const x=d.data();
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border);font-size:.84rem">
+        <div><div style="font-weight:600">${x.courseName||x.courseId}</div><div style="color:var(--text-dim);font-size:.75rem">${(x.userId||'').slice(0,12)}...</div></div>
+        <div style="text-align:right"><div style="color:var(--accent);font-family:'Orbitron',monospace;font-size:.78rem">₹${x.amount||0}</div><span class="badge ${statusBadgeClass(x.status)}">${x.status?.replace('_',' ')||'—'}</span></div>
+      </div>`;
+    }).join('') || `<div style="color:var(--text-dim);text-align:center;padding:1rem;font-size:.85rem">No purchases yet</div>`;
+
+    // Recent users
+    const recentU = await db.collection('users').orderBy('createdAt','desc').limit(5).get();
+    document.getElementById('dash-recent-users').innerHTML = recentU.docs.map(d=>{
+      const x=d.data();
+      return `<div style="display:flex;align-items:center;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--border)">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;color:var(--bg);flex-shrink:0">${(x.displayName||x.email||'?')[0].toUpperCase()}</div>
+        <div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x.displayName||'—'}</div><div style="color:var(--text-dim);font-size:.73rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x.email||''}</div></div>
+      </div>`;
+    }).join('') || `<div style="color:var(--text-dim);text-align:center;padding:1rem;font-size:.85rem">No users yet</div>`;
+  } catch(e) { console.error(e); }
+}
+
+function statusBadgeClass(s) {
+  const m={active:'bg-active',pending_verification:'bg-pending',rejected:'bg-rejected'};
+  return m[s]||'bg-pending';
+}
+
+// ── COURSES TABLE ─────────────────────────────────────────────────
+function buildCourseTable() {
+  const rows = Object.values(COURSES).map(c => {
+    const total = c.modules.reduce((a,m)=>a+m.lessons.length,0);
+    return `<tr>
+      <td><span style="font-size:1.2rem">${c.icon}</span> ${c.title}</td>
+      <td>${c.level}</td>
+      <td style="font-family:'Orbitron',monospace;color:var(--accent)">₹${c.price.toLocaleString()}</td>
+      <td>${c.weeks}w</td>
+      <td>${total}</td>
+      <td><span class="badge bg-active">Published</span></td>
+      <td><a href="course-page.html?id=${c.id}" target="_blank" class="btn btn-outline btn-sm">View</a></td>
+    </tr>`;
+  });
+  document.getElementById('coursesTbl').innerHTML = rows.join('');
+}
+
+// ── PURCHASES ─────────────────────────────────────────────────────
+async function loadPurchases() {
+  try {
+    const snap = await db.collection('coursePurchases').orderBy('createdAt','desc').limit(100).get();
+    allPurchases = snap.docs.map(d=>({id:d.id,...d.data()}));
+    filterPurchases();
+  } catch(e) { document.getElementById('purchasesTbl').innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:2rem">${e.message}</td></tr>`; }
+}
+
+function filterPurchases() {
+  const q = document.getElementById('purchaseSearch').value.toLowerCase();
+  const f = document.getElementById('purchaseFilter').value;
+  let list = allPurchases;
+  if (q) list = list.filter(p => (p.userId+p.courseId+p.courseName).toLowerCase().includes(q));
+  if (f) list = list.filter(p => p.status===f);
+  const tbody = document.getElementById('purchasesTbl');
+  if (!list.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:2rem">No results</td></tr>`; return; }
+  tbody.innerHTML = list.map(p => {
+    const dt = p.createdAt?.toDate?.()?.toLocaleDateString('en-IN')||'—';
+    return `<tr>
+      <td style="font-size:.78rem;color:var(--text-dim);max-width:120px;overflow:hidden;text-overflow:ellipsis">${(p.userId||'').slice(0,14)}...</td>
+      <td style="font-weight:600">${p.courseName||p.courseId||'—'}</td>
+      <td style="font-family:'Orbitron',monospace;color:var(--accent)">₹${p.amount||0}</td>
+      <td>${p.method||'upi'}</td>
+      <td>${p.phone||'—'}</td>
+      <td style="font-size:.78rem;color:var(--text-dim)">${dt}</td>
+      <td><span class="badge ${statusBadgeClass(p.status)}">${(p.status||'—').replace('_',' ')}</span></td>
+      <td style="display:flex;gap:.4rem;flex-wrap:wrap">
+        ${p.status==='pending_verification'?`<button class="btn btn-green btn-sm" onclick="approvePurchase('${p.id}')">Approve</button><button class="btn btn-red btn-sm" onclick="rejectPurchase('${p.id}')">Reject</button>`:''}
+        ${p.status==='active'?`<button class="btn btn-red btn-sm" onclick="revokePurchase('${p.id}')">Revoke</button>`:''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function approvePurchase(docId) {
+  const p = allPurchases.find(x=>x.id===docId); if(!p) return;
+  try {
+    await db.collection('coursePurchases').doc(docId).update({ status:'active', approvedAt:firebase.firestore.FieldValue.serverTimestamp(), approvedBy:CU.uid });
+    // Grant course access doc
+    await db.collection('coursePurchases').doc(`${p.userId}_${p.courseId}`).set({ userId:p.userId, courseId:p.courseId, courseName:p.courseName, amount:p.amount, phone:p.phone, method:p.method, status:'active', grantedAt:firebase.firestore.FieldValue.serverTimestamp(), expiresAt:new Date(Date.now()+365*24*60*60*1000) },{merge:true});
+    toast('Purchase approved — access granted!','success');
+    loadPurchases(); loadDashboardStats();
+  } catch(e){ toast('Error: '+e.message,'error'); }
+}
+
+async function rejectPurchase(docId) {
+  if(!confirm('Reject this purchase?')) return;
+  await db.collection('coursePurchases').doc(docId).update({ status:'rejected', rejectedAt:firebase.firestore.FieldValue.serverTimestamp() });
+  toast('Purchase rejected','warn'); loadPurchases();
+}
+
+async function revokePurchase(docId) {
+  if(!confirm('Revoke access? User will lose course access.')) return;
+  await db.collection('coursePurchases').doc(docId).update({ status:'revoked' });
+  toast('Access revoked','warn'); loadPurchases();
+}
+
+// ── SUBSCRIPTIONS ─────────────────────────────────────────────────
+async function loadSubscriptions() {
+  try {
+    const snap = await db.collection('subscriptions').orderBy('createdAt','desc').limit(100).get();
+    const tbody = document.getElementById('subsTbl');
+    if(snap.empty){tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:2rem">No subscriptions yet</td></tr>`;return;}
+    tbody.innerHTML = snap.docs.map(d=>{
+      const s=d.data();
+      const planCls={'basic':'bg-basic','pro':'bg-pro','premium':'bg-premium'}[s.planId]||'bg-free';
+      return `<tr>
+        <td style="font-size:.8rem">${(s.userId||'').slice(0,14)}...</td>
+        <td><span class="badge ${planCls}">${s.planId||'free'}</span></td>
+        <td style="color:var(--accent);font-family:'Orbitron',monospace">₹${s.amount||0}</td>
+        <td>${s.method||'—'}</td>
+        <td style="font-size:.8rem;color:var(--text-dim)">${s.createdAt?.toDate?.()?.toLocaleDateString('en-IN')||'—'}</td>
+        <td><span class="badge ${s.active?'bg-active':'bg-rejected'}">${s.active?'Active':'Inactive'}</span></td>
+        <td>${s.active?`<button class="btn btn-red btn-sm" onclick="cancelSub('${d.id}')">Cancel</button>`:''}</td>
+      </tr>`;
+    }).join('');
+  } catch(e){document.getElementById('subsTbl').innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:2rem">${e.message}</td></tr>`;}
+}
+
+async function cancelSub(id) {
+  if(!confirm('Cancel this subscription?'))return;
+  await db.collection('subscriptions').doc(id).update({active:false,cancelledAt:firebase.firestore.FieldValue.serverTimestamp()});
+  toast('Subscription cancelled','warn'); loadSubscriptions();
+}
+
+// ── USERS ─────────────────────────────────────────────────────────
+async function loadUsers() {
+  try {
+    const snap = await db.collection('users').orderBy('createdAt','desc').limit(200).get();
+    allUsers = snap.docs.map(d=>({id:d.id,...d.data()}));
+    filterUsers();
+  } catch(e) { document.getElementById('usersTbl').innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:2rem">${e.message}</td></tr>`; }
+}
+
+function filterUsers() {
+  const q = document.getElementById('userSearch').value.toLowerCase();
+  const list = q ? allUsers.filter(u=>(u.displayName+u.email).toLowerCase().includes(q)) : allUsers;
+  const tbody = document.getElementById('usersTbl');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:2rem">No users found</td></tr>`;return;}
+  tbody.innerHTML = list.map(u=>{
+    const isA = u.roles?.admin;
+    const isO = u.roles?.owner;
+    return `<tr>
+      <td style="font-weight:600">${u.displayName||'—'}</td>
+      <td style="font-size:.82rem;color:var(--text-dim)">${u.email||'—'}</td>
+      <td style="font-size:.82rem">${u.phone||'—'}</td>
+      <td><span class="badge bg-basic">${u.plan||'free'}</span></td>
+      <td style="font-family:'Orbitron',monospace;font-size:.78rem;color:var(--accent)">${u.xp||0}</td>
+      <td style="font-size:.78rem;color:var(--text-dim)">${u.createdAt?.toDate?.()?.toLocaleDateString('en-IN')||'—'}</td>
+      <td>${isO?'<span class="badge bg-premium">Owner</span>':isA?'<span class="badge bg-active">Admin</span>':'<span class="badge">User</span>'}</td>
+      <td style="display:flex;gap:.4rem;flex-wrap:wrap">
+        ${!isA&&!isO?`<button class="btn btn-green btn-sm" onclick="setUserAdmin('${u.id}',true)">+Admin</button>`:''}
+        ${isA&&!isO?`<button class="btn btn-red btn-sm" onclick="setUserAdmin('${u.id}',false)">-Admin</button>`:''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function setUserAdmin(uid, grant) {
+  const roles = grant ? {'roles.admin':true} : {'roles.admin':firebase.firestore.FieldValue.delete()};
+  await db.collection('users').doc(uid).update(roles);
+  toast(grant?'Admin granted':'Admin revoked', grant?'success':'warn');
+  loadUsers();
+}
+
+// ── LIVE SESSIONS ─────────────────────────────────────────────────
+function populateLsCourseDropdown() {
+  const sel = document.getElementById('ls-course');
+  if(!sel) return;
+  sel.innerHTML = Object.values(COURSES).map(c=>`<option value="${c.id}">${c.icon} ${c.title}</option>`).join('');
+}
+
+async function scheduleSession() {
+  const courseId  = document.getElementById('ls-course').value;
+  const topic     = document.getElementById('ls-topic').value.trim();
+  const datetime  = document.getElementById('ls-datetime').value;
+  const duration  = parseInt(document.getElementById('ls-duration').value)||60;
+  const link      = document.getElementById('ls-link').value.trim();
+  const notes     = document.getElementById('ls-notes').value.trim();
+  if(!courseId||!topic||!datetime||!link){toast('Fill in all required fields','warn');return;}
+  const course    = COURSES[courseId];
+  try {
+    await db.collection('liveSessions').add({
+      courseId, courseName:course?.title||courseId,
+      topic, datetime:new Date(datetime), duration, link, notes,
+      createdBy:CU.uid,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    toast('Session scheduled!','success');
+    ['ls-topic','ls-link','ls-notes'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('ls-datetime').value='';
+    loadSessions();
+  } catch(e){toast('Error: '+e.message,'error');}
+}
+
+async function loadSessions() {
+  try {
+    const snap = await db.collection('liveSessions').orderBy('datetime').limit(30).get();
+    const el = document.getElementById('sessionsList');
+    if(snap.empty){el.innerHTML=`<div style="color:var(--text-dim);text-align:center;padding:1.5rem;font-size:.85rem">No sessions scheduled.</div>`;return;}
+    el.innerHTML = snap.docs.map(d=>{
+      const s=d.data();
+      const dt = s.datetime?.toDate?.();
+      const past = dt && dt < new Date();
+      return `<div style="display:flex;align-items:center;gap:.85rem;padding:.85rem;background:rgba(255,255,255,.02);border:1px solid ${past?'rgba(255,255,255,.06)':'var(--border)'};border-radius:10px;margin-bottom:.6rem;opacity:${past?.5:1}">
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Orbitron',monospace;font-size:.58rem;color:var(--accent);letter-spacing:1px;margin-bottom:.2rem">${COURSES[s.courseId]?.icon||''} ${s.courseName}</div>
+          <div style="font-weight:700;font-size:.9rem;margin-bottom:.2rem">${s.topic}</div>
+          <div style="font-size:.75rem;color:var(--text-dim)">${dt?dt.toLocaleString('en-IN',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'TBD'} · ${s.duration}min</div>
+        </div>
+        <div style="display:flex;gap:.4rem;flex-shrink:0">
+          ${!past?`<a href="${s.link}" target="_blank" class="btn btn-primary btn-sm">Join</a>`:''}
+          <button class="btn btn-red btn-sm" onclick="deleteSession('${d.id}')">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e){document.getElementById('sessionsList').innerHTML=`<div style="color:var(--text-dim);text-align:center;padding:1.5rem;font-size:.85rem">${e.message}</div>`;}
+}
+
+async function deleteSession(id) {
+  if(!confirm('Delete this session?'))return;
+  await db.collection('liveSessions').doc(id).delete();
+  toast('Session deleted','warn'); loadSessions();
+}
+
+// ── LEADERBOARD ───────────────────────────────────────────────────
+function loadAdminLeaderboard() {
+  const el = document.getElementById('lbList');
+  if(!rtdb){el.innerHTML=`<div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">Realtime Database not configured.</div>`;return;}
+  const week = getWeekKey();
+  document.getElementById('lbWeekLabel').textContent = 'Week: '+week;
+  rtdb.ref(`leaderboard/${week}`).orderByChild('xp').limitToLast(30).once('value',snap=>{
+    if(!snap.exists()){el.innerHTML=`<div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">No data this week.</div>`;return;}
+    const entries=[];
+    snap.forEach(c=>entries.push({uid:c.key,...c.val()}));
+    entries.reverse();
+    el.innerHTML = `<table class="tbl"><thead><tr><th>#</th><th>User</th><th>XP</th><th>Last Activity</th></tr></thead><tbody>`+
+    entries.map((e,i)=>`<tr><td style="font-family:'Orbitron',monospace;font-weight:700;color:${i<3?'var(--accent)':'var(--text-dim)'}">${i+1}</td><td>${e.displayName||'Anonymous'}</td><td style="font-family:'Orbitron',monospace;color:var(--accent)">${e.xp||0}</td><td style="font-size:.78rem;color:var(--text-dim)">${e.lastUpdated?new Date(e.lastUpdated).toLocaleDateString('en-IN'):'—'}</td></tr>`).join('')+
+    `</tbody></table>`;
+  });
+}
+
+// ── SETTINGS ─────────────────────────────────────────────────────
+async function loadSettings() {
+  try {
+    const doc = await db.collection('settings').doc('platform').get();
+    if(doc.exists){
+      const d=doc.data();
+      if(d.upiId)        document.getElementById('set-upi').value  = d.upiId;
+      if(d.razorpayKeyId) document.getElementById('set-rzp').value = d.razorpayKeyId;
+      if(d.supportPhone) document.getElementById('set-phone').value = d.supportPhone;
+    }
+  } catch(e){}
+}
+
+async function saveSettings() {
+  const data = {
+    upiId:        document.getElementById('set-upi').value.trim(),
+    razorpayKeyId:document.getElementById('set-rzp').value.trim(),
+    supportPhone: document.getElementById('set-phone').value.trim(),
+    updatedAt:    firebase.firestore.FieldValue.serverTimestamp(),
+    updatedBy:    CU.uid,
+  };
+  await db.collection('settings').doc('platform').set(data,{merge:true});
+  toast('Settings saved!','success');
+}
+
+async function grantAdmin(grant) {
+  const email = document.getElementById('set-adminEmail').value.trim();
+  if(!email){toast('Enter an email','warn');return;}
+  const res = document.getElementById('adminResult');
+  res.textContent = 'Calling Cloud Function...';
+  try {
+    const fn = firebase.functions().httpsCallable('setAdmin');
+    await fn({email, admin:grant});
+    res.textContent = (grant?'Admin granted':'Admin revoked')+' for '+email;
+    toast((grant?'Admin granted':'Admin revoked')+' for '+email,'success');
+  } catch(e){
+    res.textContent = 'Error: '+e.message+' — Make sure setAdmin Cloud Function is deployed.';
+    toast('Function error: '+e.message,'error');
+  }
+}
+
+// ── ADD COURSE TO FIRESTORE ───────────────────────────────────────
+async function saveCourseToFirestore() {
+  const id     = document.getElementById('ac-id').value.trim().replace(/\s/g,'_');
+  const title  = document.getElementById('ac-title').value.trim();
+  const price  = parseInt(document.getElementById('ac-price').value)||0;
+  if(!id||!title){toast('ID and Title are required','warn');return;}
+  const data = {
+    id, title,
+    icon:     document.getElementById('ac-icon').value.trim()||'📚',
+    level:    document.getElementById('ac-level').value,
+    weeks:    parseInt(document.getElementById('ac-weeks').value)||8,
+    price,
+    desc:     document.getElementById('ac-desc').value.trim(),
+    longDesc: document.getElementById('ac-longdesc').value.trim(),
+    tags:     document.getElementById('ac-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
+    features: document.getElementById('ac-feats').value.split('\n').map(f=>f.trim()).filter(Boolean),
+    published:false,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+    createdBy:CU.uid,
+  };
+  try {
+    await db.collection('courses').doc(id).set(data);
+    document.getElementById('ac-result').textContent = `✓ Course "${title}" saved to Firestore (not yet published).`;
+    toast('Course saved to Firestore!','success');
+  } catch(e){toast('Error: '+e.message,'error');}
+}
+function clearAddForm() {
+  ['ac-id','ac-title','ac-icon','ac-price','ac-desc','ac-tags','ac-feats','ac-longdesc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ac-result').textContent='';
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const colors={info:'var(--accent)',success:'var(--green)',error:'var(--red)',warn:'var(--yellow)'};
+  const t=document.createElement('div'); t.className='mi-toast'; t.style.borderColor=colors[type]||'var(--accent)'; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.transition='opacity .4s';t.style.opacity='0';setTimeout(()=>t.remove(),400)},3500);
+}
+
+// ── NOTIFICATIONS ──────────────────────────────────────────────
+
+// Live preview as admin types
+document.addEventListener('input', e => {
+  if (['notif-title','notif-body','notif-icon'].includes(e.target.id)) updateNotifPreview();
+});
+
+function updateNotifPreview() {
+  const title = document.getElementById('notif-title')?.value || 'Notification title';
+  const body  = document.getElementById('notif-body')?.value  || 'Your message will appear here...';
+  const icon  = document.getElementById('notif-icon')?.value  || '🔔';
+  const pt = document.getElementById('prevTitle');
+  const pb = document.getElementById('prevBody');
+  const pi = document.getElementById('prevIcon');
+  if(pt) pt.textContent = title;
+  if(pb) pb.textContent = body;
+  if(pi) pi.textContent = icon;
+}
+
+async function sendNotification() {
+  const title  = document.getElementById('notif-title').value.trim();
+  const body   = document.getElementById('notif-body').value.trim();
+  const icon   = document.getElementById('notif-icon').value.trim() || '🔔';
+  const target = document.getElementById('notif-target').value;
+  const link   = document.getElementById('notif-link').value.trim();
+  const result = document.getElementById('notifSendResult');
+  const btn    = document.getElementById('sendNotifBtn');
+
+  if (!title || !body) { toast('Title and message are required','warn'); return; }
+
+  btn.disabled = true; btn.textContent = 'Sending...';
+  result.textContent = '';
+
+  try {
+    const notifData = {
+      title, body, icon, target, link,
+      sentBy:    CU.uid,
+      sentAt:    firebase.firestore.FieldValue.serverTimestamp(),
+      readBy:    [],
+    };
+
+    // Save to global notifications collection
+    const docRef = await db.collection('notifications').add(notifData);
+
+    // Also write to Realtime DB for instant push to all online users
+    if (rtdb) {
+      await rtdb.ref('globalNotifications/' + docRef.id).set({
+        title, body, icon, target, link,
+        sentAt: firebase.database.ServerValue.TIMESTAMP,
+      });
+      // Auto-delete from RTDB after 7 days (just a flag)
+      setTimeout(() => {
+        rtdb.ref('globalNotifications/' + docRef.id).remove().catch(()=>{});
+      }, 7 * 24 * 60 * 60 * 1000);
+    }
+
+    result.style.color = 'var(--green)';
+    result.textContent = '✓ Notification sent to ' + getTargetLabel(target) + '!';
+    const badge = document.getElementById('notifSentBadge');
+    if (badge) { badge.style.display='inline'; setTimeout(()=>badge.style.display='none', 3000); }
+    toast('Notification sent!','success');
+    clearNotifForm();
+    loadNotifHistory();
+  } catch(e) {
+    result.style.color = 'var(--red)';
+    result.textContent = 'Error: ' + e.message;
+    toast('Failed: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '📣 Send Now';
+  }
+}
+
+function getTargetLabel(target) {
+  const labels = {
+    all:'All Users', basic:'Basic+ users', pro:'Pro+ users',
+    premium:'Premium users', webdev:'Web Dev buyers',
+    python:'Python buyers', cpp:'C++ buyers',
+    datascience:'Data Science buyers', ml:'ML buyers', robotics:'Robotics buyers'
+  };
+  return labels[target] || target;
+}
+
+async function loadNotifHistory() {
+  const el = document.getElementById('notifHistory');
+  if (!el) return;
+  try {
+    const snap = await db.collection('notifications')
+      .orderBy('sentAt','desc').limit(20).get();
+
+    if (snap.empty) {
+      el.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">No notifications sent yet.</div>';
+      return;
+    }
+
+    el.innerHTML = snap.docs.map(doc => {
+      const n = doc.data();
+      const dt = n.sentAt?.toDate?.()?.toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) || 'Just now';
+      return `<div style="display:flex;align-items:flex-start;gap:.85rem;padding:.9rem;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:10px;margin-bottom:.6rem">
+        <div style="font-size:1.4rem;flex-shrink:0">${n.icon||'🔔'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;margin-bottom:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.title}</div>
+          <div style="font-size:.8rem;color:var(--text-dim);line-height:1.45;margin-bottom:.3rem">${n.body}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.3rem">
+            <span style="font-size:.68rem;color:var(--text-dim)">${dt} · ${getTargetLabel(n.target||'all')}</span>
+            <button onclick="deleteNotif('${doc.id}')" style="font-size:.62rem;color:var(--red);background:rgba(255,51,102,.1);border:1px solid rgba(255,51,102,.2);border-radius:6px;padding:3px 9px;cursor:pointer;font-family:'Orbitron',monospace">Delete</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">' + e.message + '</div>';
+  }
+}
+
+async function deleteNotif(id) {
+  if (!confirm('Delete this notification? Users who haven't read it will lose it.')) return;
+  try {
+    await db.collection('notifications').doc(id).delete();
+    if (rtdb) rtdb.ref('globalNotifications/' + id).remove().catch(()=>{});
+    toast('Notification deleted','warn');
+    loadNotifHistory();
+  } catch(e) { toast('Error: ' + e.message,'error'); }
+}
+
+function clearNotifForm() {
+  ['notif-title','notif-body','notif-icon','notif-link'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const sel = document.getElementById('notif-target');
+  if (sel) sel.value = 'all';
+  document.getElementById('notifSendResult').textContent = '';
+  updateNotifPreview();
+}
+
+// Load history when notifications panel is shown
+const _origShow = window.show;
+
+// Load notif history on page load too
+setTimeout(loadNotifHistory, 1500);
+
+// ── EBOOK MANAGEMENT ───────────────────────────────────────────
+
+async function saveEbook() {
+  const editId    = document.getElementById('eb-edit-id').value.trim();
+  const title     = document.getElementById('eb-title').value.trim();
+  const icon      = document.getElementById('eb-icon').value.trim() || '📖';
+  const pages     = document.getElementById('eb-pages').value.trim();
+  const course    = document.getElementById('eb-course').value;
+  const fileUrl   = document.getElementById('eb-url').value.trim();
+  const desc      = document.getElementById('eb-desc').value.trim();
+  const free      = document.getElementById('eb-free').checked;
+  const published = document.getElementById('eb-published').checked;
+  const result    = document.getElementById('ebResult');
+  const btn       = document.getElementById('ebSaveBtn');
+
+  if (!title)   { toast('Title is required','warn'); return; }
+  if (!fileUrl) { toast('PDF link is required','warn'); return; }
+
+  btn.disabled = true; btn.textContent = 'Saving...';
+
+  const data = {
+    title, icon, pages: pages ? parseInt(pages) : null,
+    course, fileUrl, desc, free, published,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  };
+
+  try {
+    if (editId) {
+      // Editing existing
+      await db.collection('ebooks').doc(editId).update(data);
+      result.style.color = 'var(--green)';
+      result.textContent = '✓ Ebook updated!';
+      toast('Ebook updated!', 'success');
+    } else {
+      // Adding new
+      data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      data.createdBy = CU.uid;
+      await db.collection('ebooks').add(data);
+      result.style.color = 'var(--green)';
+      result.textContent = '✓ Ebook added! Students can see it now.';
+      toast('Ebook added successfully!', 'success');
+    }
+    clearEbookForm();
+    loadAdminEbooks();
+  } catch(e) {
+    result.style.color = 'var(--red)';
+    result.textContent = 'Error: ' + e.message;
+    toast('Error: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = document.getElementById('eb-edit-id').value ? 'Update Ebook' : '+ Add Ebook';
+  }
+}
+
+async function loadAdminEbooks() {
+  const el = document.getElementById('adminEbookList');
+  if (!el) return;
+  try {
+    const snap = await db.collection('ebooks').orderBy('createdAt','desc').get();
+
+    if (snap.empty) {
+      el.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">No ebooks added yet. Add your first one!</div>';
+      return;
+    }
+
+    el.innerHTML = snap.docs.map(doc => {
+      const e = doc.data();
+      const pubStyle = e.published
+        ? 'background:rgba(0,255,136,.1);color:#00ff88;border:1px solid rgba(0,255,136,.2)'
+        : 'background:rgba(255,51,102,.1);color:#ff3366;border:1px solid rgba(255,51,102,.2)';
+
+      return `<div style="display:flex;align-items:flex-start;gap:.85rem;padding:1rem;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;margin-bottom:.65rem;transition:border .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:2rem;flex-shrink:0">${e.icon||'📖'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;margin-bottom:.2rem">${e.title}</div>
+          <div style="font-size:.78rem;color:var(--text-dim);margin-bottom:.4rem">
+            ${e.pages?e.pages+' pages · ':''}${e.course||'General'}${e.free?' · <span style="color:#00ff88">Free</span>':''}
+          </div>
+          <div style="font-size:.72rem;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:280px;margin-bottom:.5rem">
+            🔗 ${e.fileUrl||'No link'}
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+            <span style="font-family:'Orbitron',monospace;font-size:.55rem;font-weight:700;padding:3px 9px;border-radius:50px;${pubStyle}">
+              ${e.published?'PUBLISHED':'HIDDEN'}
+            </span>
+            <button onclick="editEbook('${doc.id}')" class="btn btn-outline btn-sm">Edit</button>
+            <button onclick="toggleEbookPublish('${doc.id}',${e.published})" class="btn btn-sm ${e.published?'btn-red':'btn-green'}">${e.published?'Unpublish':'Publish'}</button>
+            <button onclick="deleteEbook('${doc.id}')" class="btn btn-red btn-sm">Delete</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:.85rem">'+e.message+'</div>';
+  }
+}
+
+async function editEbook(id) {
+  try {
+    const doc = await db.collection('ebooks').doc(id).get();
+    if (!doc.exists) return;
+    const e = doc.data();
+
+    document.getElementById('eb-edit-id').value    = id;
+    document.getElementById('eb-title').value      = e.title || '';
+    document.getElementById('eb-icon').value       = e.icon  || '';
+    document.getElementById('eb-pages').value      = e.pages || '';
+    document.getElementById('eb-course').value     = e.course || '';
+    document.getElementById('eb-url').value        = e.fileUrl || '';
+    document.getElementById('eb-desc').value       = e.desc  || '';
+    document.getElementById('eb-free').checked     = e.free  || false;
+    document.getElementById('eb-published').checked= e.published !== false;
+
+    document.getElementById('ebookFormTitle').textContent = 'Edit Ebook';
+    document.getElementById('ebSaveBtn').textContent      = 'Update Ebook';
+    document.getElementById('ebResult').textContent       = '';
+
+    // Scroll to form
+    document.getElementById('eb-title').scrollIntoView({ behavior:'smooth', block:'center' });
+    document.getElementById('eb-title').focus();
+  } catch(e) { toast('Error loading ebook: ' + e.message,'error'); }
+}
+
+async function toggleEbookPublish(id, currentlyPublished) {
+  try {
+    await db.collection('ebooks').doc(id).update({ published: !currentlyPublished });
+    toast(currentlyPublished ? 'Ebook hidden from students' : 'Ebook published — students can see it!',
+          currentlyPublished ? 'warn' : 'success');
+    loadAdminEbooks();
+  } catch(e) { toast('Error: ' + e.message,'error'); }
+}
+
+async function deleteEbook(id) {
+  if (!confirm('Delete this ebook permanently? Students will lose access.')) return;
+  try {
+    await db.collection('ebooks').doc(id).delete();
+    toast('Ebook deleted','warn');
+    loadAdminEbooks();
+  } catch(e) { toast('Error: ' + e.message,'error'); }
+}
+
+function clearEbookForm() {
+  ['eb-edit-id','eb-title','eb-icon','eb-pages','eb-url','eb-desc'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value='';
+  });
+  const course = document.getElementById('eb-course'); if(course) course.value='';
+  const free = document.getElementById('eb-free'); if(free) free.checked=false;
+  const pub  = document.getElementById('eb-published'); if(pub) pub.checked=true;
+  document.getElementById('ebookFormTitle').textContent = 'Add New Ebook';
+  document.getElementById('ebSaveBtn').textContent      = '+ Add Ebook';
+  document.getElementById('ebResult').textContent       = '';
+}
+
+// Load ebooks when panel opens
+// Load subscriptions when that panel is opened
+document.querySelectorAll('.sb-lnk').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const panelId = btn.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+    if(panelId==='subscriptions') loadSubscriptions();
+    if(panelId==='ebooks')        loadAdminEbooks();
+  });
+});
+
+// Auto-load ebooks on page ready
+setTimeout(loadAdminEbooks, 1000);
+</script>
+</body>
+</html>

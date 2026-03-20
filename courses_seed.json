@@ -1,0 +1,237 @@
+{
+  "courses": [
+    {
+      "id": "htmlcss",
+      "title": "HTML & CSS",
+      "slug": "html-css",
+      "shortDesc": "Build beautiful, responsive websites from scratch with modern HTML5 and CSS3.",
+      "longDesc": "Start your web development journey with the foundations of the web. Learn semantic HTML, CSS selectors, flexbox, grid, responsive design, animations, and build real projects from day one.",
+      "category": "Web Development",
+      "level": "beginner",
+      "durationHours": 16,
+      "price": 0,
+      "published": true,
+      "thumbnailURL": "",
+      "tags": ["HTML", "CSS", "Responsive", "Flexbox", "Grid"],
+      "modules": [
+        {
+          "order": 1,
+          "title": "HTML Foundations",
+          "lessons": [
+            { "order":1, "title":"What is HTML?",          "type":"video", "durationSec":600  },
+            { "order":2, "title":"HTML Structure & Tags",  "type":"video", "durationSec":720  },
+            { "order":3, "title":"Forms & Tables",         "type":"video", "durationSec":840  },
+            { "order":4, "title":"Build a Simple Page",    "type":"code",  "durationSec":1800 }
+          ]
+        },
+        {
+          "order": 2,
+          "title": "CSS Styling",
+          "lessons": [
+            { "order":1, "title":"Selectors & Properties", "type":"video", "durationSec":720  },
+            { "order":2, "title":"Flexbox Layout",         "type":"video", "durationSec":900  },
+            { "order":3, "title":"CSS Grid",               "type":"video", "durationSec":900  },
+            { "order":4, "title":"Responsive Design",      "type":"video", "durationSec":840  },
+            { "order":5, "title":"Style a Portfolio Page", "type":"code",  "durationSec":2700 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "javascript",
+      "title": "JavaScript",
+      "slug": "javascript",
+      "shortDesc": "DOM, APIs, async/await, ES6+ and modern JavaScript from zero.",
+      "longDesc": "Become a JavaScript developer. Cover variables, functions, OOP, DOM manipulation, event handling, fetch API, promises, async/await, and build interactive apps.",
+      "category": "Web Development",
+      "level": "beginner",
+      "durationHours": 32,
+      "price": 0,
+      "published": true,
+      "thumbnailURL": "",
+      "tags": ["JavaScript", "ES6", "DOM", "APIs", "Async"],
+      "modules": [
+        { "order":1, "title":"JS Fundamentals", "lessons":[
+          {"order":1,"title":"Variables & Types",    "type":"video","durationSec":600},
+          {"order":2,"title":"Functions & Scope",    "type":"video","durationSec":840},
+          {"order":3,"title":"Arrays & Objects",     "type":"video","durationSec":900},
+          {"order":4,"title":"Loops & Conditionals", "type":"video","durationSec":720},
+          {"order":5,"title":"JS Basics Challenge",  "type":"code", "durationSec":1800}
+        ]},
+        { "order":2, "title":"DOM & Events", "lessons":[
+          {"order":1,"title":"Selecting DOM Elements","type":"video","durationSec":720},
+          {"order":2,"title":"Event Listeners",       "type":"video","durationSec":840},
+          {"order":3,"title":"Build a To-Do App",     "type":"code", "durationSec":2700}
+        ]},
+        { "order":3, "title":"Async JS & APIs", "lessons":[
+          {"order":1,"title":"Promises",       "type":"video","durationSec":900},
+          {"order":2,"title":"Async/Await",    "type":"video","durationSec":840},
+          {"order":3,"title":"Fetch & REST",   "type":"video","durationSec":960},
+          {"order":4,"title":"API Mini-Project","type":"code","durationSec":2700}
+        ]}
+      ]
+    },
+    {
+      "id": "python",
+      "title": "Python",
+      "slug": "python",
+      "shortDesc": "Core Python for automation, scripting and data science foundations.",
+      "longDesc": "Master Python from the ground up. Learn syntax, OOP, file handling, error handling, libraries like os/sys/json, and build automation scripts and CLI tools.",
+      "category": "Programming",
+      "level": "beginner",
+      "durationHours": 32,
+      "price": 0,
+      "published": true,
+      "thumbnailURL": "",
+      "tags": ["Python", "OOP", "Automation", "Scripting"],
+      "modules": [
+        { "order":1, "title":"Python Basics", "lessons":[
+          {"order":1,"title":"Setup & Hello World",    "type":"video","durationSec":600},
+          {"order":2,"title":"Variables & Data Types", "type":"video","durationSec":840},
+          {"order":3,"title":"Strings & String Ops",   "type":"video","durationSec":720},
+          {"order":4,"title":"First Python Challenge", "type":"code", "durationSec":1800}
+        ]},
+        { "order":2, "title":"Control Flow", "lessons":[
+          {"order":1,"title":"If / Elif / Else","type":"video","durationSec":600},
+          {"order":2,"title":"For & While Loops","type":"video","durationSec":840},
+          {"order":3,"title":"Practice: FizzBuzz","type":"code","durationSec":1200}
+        ]},
+        { "order":3, "title":"Functions & Modules", "lessons":[
+          {"order":1,"title":"Defining Functions","type":"video","durationSec":840},
+          {"order":2,"title":"Lambda Functions", "type":"video","durationSec":600},
+          {"order":3,"title":"Importing Modules", "type":"video","durationSec":720},
+          {"order":4,"title":"Build a Calculator","type":"code","durationSec":2700}
+        ]},
+        { "order":4, "title":"OOP in Python", "lessons":[
+          {"order":1,"title":"Classes & Objects","type":"video","durationSec":1200},
+          {"order":2,"title":"Inheritance",      "type":"video","durationSec":960},
+          {"order":3,"title":"OOP Mini-Project", "type":"code", "durationSec":3600}
+        ]}
+      ]
+    },
+    {
+      "id": "java",
+      "title": "Java",
+      "slug": "java",
+      "shortDesc": "OOP, data structures, algorithms and enterprise Java patterns.",
+      "category": "Programming",
+      "level": "intermediate",
+      "durationHours": 40,
+      "price": 299,
+      "published": true,
+      "thumbnailURL": "",
+      "tags": ["Java", "OOP", "DSA", "Enterprise"],
+      "modules": [
+        { "order":1, "title":"Java Fundamentals","lessons":[
+          {"order":1,"title":"JDK Setup & Hello World","type":"video","durationSec":720},
+          {"order":2,"title":"Data Types & Variables",  "type":"video","durationSec":840},
+          {"order":3,"title":"Control Flow",            "type":"video","durationSec":720}
+        ]},
+        { "order":2, "title":"OOP in Java","lessons":[
+          {"order":1,"title":"Classes & Objects",  "type":"video","durationSec":1200},
+          {"order":2,"title":"Inheritance & Polymorphism","type":"video","durationSec":1080},
+          {"order":3,"title":"Interfaces & Abstract","type":"video","durationSec":960},
+          {"order":4,"title":"Java OOP Project",   "type":"code", "durationSec":3600}
+        ]},
+        { "order":3, "title":"Data Structures","lessons":[
+          {"order":1,"title":"Arrays & ArrayLists","type":"video","durationSec":960},
+          {"order":2,"title":"LinkedLists",         "type":"video","durationSec":1080},
+          {"order":3,"title":"HashMap & HashSet",   "type":"video","durationSec":900},
+          {"order":4,"title":"DSA Challenges",      "type":"code", "durationSec":3600}
+        ]}
+      ]
+    },
+    {
+      "id": "datascience",
+      "title": "Data Science with Python",
+      "slug": "data-science",
+      "shortDesc": "NumPy, Pandas, Matplotlib, ML models and real datasets.",
+      "category": "Data & AI",
+      "level": "intermediate",
+      "durationHours": 40,
+      "price": 799,
+      "published": true,
+      "thumbnailURL": "",
+      "tags": ["NumPy", "Pandas", "Matplotlib", "ML", "Data"],
+      "modules": [
+        { "order":1, "title":"Data Science Setup","lessons":[
+          {"order":1,"title":"What is Data Science?","type":"video","durationSec":600},
+          {"order":2,"title":"Jupyter Notebooks",    "type":"video","durationSec":720},
+          {"order":3,"title":"NumPy Fundamentals",   "type":"video","durationSec":1080}
+        ]},
+        { "order":2, "title":"Pandas & Data Wrangling","lessons":[
+          {"order":1,"title":"DataFrames & Series","type":"video","durationSec":1200},
+          {"order":2,"title":"Data Cleaning",       "type":"video","durationSec":960},
+          {"order":3,"title":"Merging & Groupby",   "type":"video","durationSec":900},
+          {"order":4,"title":"Pandas Lab",          "type":"code", "durationSec":2700}
+        ]},
+        { "order":3, "title":"Visualization & ML","lessons":[
+          {"order":1,"title":"Matplotlib & Seaborn","type":"video","durationSec":1080},
+          {"order":2,"title":"Intro to scikit-learn","type":"video","durationSec":1200},
+          {"order":3,"title":"Linear Regression Lab","type":"code","durationSec":3600}
+        ]}
+      ]
+    },
+    {
+      "id": "ml",
+      "title": "Machine Learning",
+      "slug": "machine-learning",
+      "shortDesc": "Supervised, unsupervised learning and neural networks with TensorFlow.",
+      "category": "AI & ML",
+      "level": "advanced",
+      "durationHours": 48,
+      "price": 799,
+      "published": true,
+      "thumbnailURL": "",
+      "tags": ["ML", "TensorFlow", "scikit-learn", "Neural Networks", "AI"],
+      "modules": [
+        {"order":1,"title":"ML Foundations","lessons":[
+          {"order":1,"title":"What is ML?",           "type":"video","durationSec":900},
+          {"order":2,"title":"Types of ML",           "type":"video","durationSec":720},
+          {"order":3,"title":"Environment Setup",     "type":"video","durationSec":600}
+        ]},
+        {"order":2,"title":"Supervised Learning","lessons":[
+          {"order":1,"title":"Linear Regression",    "type":"video","durationSec":1320},
+          {"order":2,"title":"Logistic Regression",  "type":"video","durationSec":1200},
+          {"order":3,"title":"Decision Trees & RF",  "type":"video","durationSec":1080},
+          {"order":4,"title":"Predict House Prices",  "type":"code","durationSec":3600}
+        ]},
+        {"order":3,"title":"Neural Networks","lessons":[
+          {"order":1,"title":"Intro to Neural Nets", "type":"video","durationSec":1500},
+          {"order":2,"title":"Build with TensorFlow","type":"video","durationSec":1800},
+          {"order":3,"title":"CNN Project",          "type":"code", "durationSec":5400}
+        ]}
+      ]
+    },
+    {
+      "id": "robotics",
+      "title": "Robotics & Arduino",
+      "slug": "robotics-arduino",
+      "shortDesc": "Build intelligent robots with Arduino, sensors and autonomous systems.",
+      "category": "Hardware & AI",
+      "level": "all",
+      "durationHours": 32,
+      "price": 799,
+      "published": true,
+      "thumbnailURL": "",
+      "tags": ["Arduino", "Robotics", "Sensors", "IoT", "Autonomous"],
+      "modules": [
+        {"order":1,"title":"Arduino Basics","lessons":[
+          {"order":1,"title":"What is Arduino?",  "type":"video","durationSec":720},
+          {"order":2,"title":"Arduino IDE Setup", "type":"video","durationSec":600},
+          {"order":3,"title":"Blink an LED",      "type":"code", "durationSec":1200}
+        ]},
+        {"order":2,"title":"Sensors & Actuators","lessons":[
+          {"order":1,"title":"Ultrasonic Sensor", "type":"video","durationSec":960},
+          {"order":2,"title":"DC Motors & L298N", "type":"video","durationSec":1080},
+          {"order":3,"title":"Servo Motors",      "type":"video","durationSec":840}
+        ]},
+        {"order":3,"title":"Build a Robot","lessons":[
+          {"order":1,"title":"Line Follower Robot","type":"video","durationSec":1800},
+          {"order":2,"title":"Obstacle Avoider",   "type":"video","durationSec":1800},
+          {"order":3,"title":"Final Robot Project","type":"code", "durationSec":7200}
+        ]}
+      ]
+    }
+  ]
+}
